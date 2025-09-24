@@ -18,6 +18,12 @@ class DummyPkt:
     def __contains__(self, item):
         return item == 'DNS' and hasattr(self, 'dns')
 
+def test_get_ip_info():
+    ip = "1.1.1.1"
+    result = utils.get_ip_info(ip)
+    assert isinstance(result, dict)
+    assert result.get("ip") == ip
+
 def test_extract_ips_basic():
     pkts = [
         DummyPkt(src='1.1.1.1', dst='2.2.2.2'),
