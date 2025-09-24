@@ -1,6 +1,8 @@
 # Package-specific ignores
 report.json
 *.log
+*.pcap
+*.pcapng
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
