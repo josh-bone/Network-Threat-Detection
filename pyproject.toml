@@ -9,15 +9,18 @@ readme = "README.md"
 requires-python = ">=3.7"
 license = { text = "GNU GENERAL PUBLIC LICENSE" }
 keywords = ["pcap", "ioc", "security", "network"]
+dependencies = [
+    "argparse",
+    "pyshark"
+]
+
+[project.scripts]
+pcap-ioc = "pcap_ioc.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/josh-bone/Network-Threat-Detection"
 Repository = "https://github.com/josh-bone/Network-Threat-Detection"
 Issues = "https://github.com/josh-bone/Network-Threat-Detection/issues"
-
-[project.dependencies]
-scapy = ">=2.4.0"
-# Add other dependencies as needed
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]

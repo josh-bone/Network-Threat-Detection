@@ -37,7 +37,7 @@ def save_report(ips, domains, out_file):
     with open(out_file, 'w') as f:
         json.dump(report, f, indent=4)
         
-def main(in_file, out_file='report.json'):
+def run(in_file, out_file='report.json'):
     cap = load_pcap(in_file)
     
     ips = extract_ips(cap)
@@ -46,10 +46,3 @@ def main(in_file, out_file='report.json'):
     save_report(ips, domains, out_file)
     
     print(f"Found {len(ips)} unique IPs and {len(domains)} unique domains.")
-
-if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='Analyze a PCAP file for IOCs.')
-    args.add_argument('--in_file', type=str, help='Input PCAP file path')
-    args.add_argument('--out_file', type=str, default='report.json', help='Output report file path')
-    parsed_args = args.parse_args()
-    main(parsed_args.in_file, parsed_args.out_file)
