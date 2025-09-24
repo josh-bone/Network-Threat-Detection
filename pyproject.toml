@@ -1,0 +1,24 @@
+[project]
+name = "pcap_ioc"
+version = "0.1.0"
+description = "A Python package for extracting indicators of compromise (IOCs) from PCAP files."
+authors = [
+    { name = "Joshua Bone", email = "jbone.data@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.7"
+license = { text = "GNU GENERAL PUBLIC LICENSE" }
+keywords = ["pcap", "ioc", "security", "network", "forensics"]
+
+[project.urls]
+Homepage = "https://github.com/josh-bone/pcap_ioc"
+Repository = "https://github.com/josh-bone/pcap_ioc"
+Issues = "https://github.com/josh-bone/pcap_ioc/issues"
+
+[project.dependencies]
+scapy = ">=2.4.0"
+# Add other dependencies as needed
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
