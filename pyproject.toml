@@ -8,12 +8,12 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.7"
 license = { text = "GNU GENERAL PUBLIC LICENSE" }
-keywords = ["pcap", "ioc", "security", "network", "forensics"]
+keywords = ["pcap", "ioc", "security", "network"]
 
 [project.urls]
-Homepage = "https://github.com/josh-bone/pcap_ioc"
-Repository = "https://github.com/josh-bone/pcap_ioc"
-Issues = "https://github.com/josh-bone/pcap_ioc/issues"
+Homepage = "https://github.com/josh-bone/Network-Threat-Detection"
+Repository = "https://github.com/josh-bone/Network-Threat-Detection"
+Issues = "https://github.com/josh-bone/Network-Threat-Detection/issues"
 
 [project.dependencies]
 scapy = ">=2.4.0"
