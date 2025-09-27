@@ -41,7 +41,7 @@ def get_ip_info(ip_address: str) -> dict | Exception:
         response.raise_for_status()  # Raise HTTPError for bad responses
         ip_info = response.json()
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching IP info: {str(e)}")
+        logger.error("Error fetching IP info: %s", str(e))
         return e
 
     return ip_info
@@ -64,7 +64,9 @@ def capture_packets(
     assert duration is not None and duration > 0, "Duration must be a positive integer"
 
     logger.info(
-        "Starting live capture on interface %s for %d seconds", interface, duration
+        "Starting live capture on interface %s for %d seconds",
+        interface,
+        duration
     )
     try:
         capture = pyshark.LiveCapture(
@@ -75,8 +77,8 @@ def capture_packets(
         print("\nCtrl-C pressed. Exiting gracefully.")
         sys.exit(0)  # Explicitly exit the program
 
-    logger.info(f"Capture finished, saving to {output_filename}")
-    logger.info(f"Captured {len(capture)} packets on interface {interface}")
+    logger.info("Capture finished, saving to %s", output_filename)
+    logger.info("Captured %d packets on interface %s", len(capture), interface)
 
     return capture
 
@@ -114,14 +116,14 @@ def extract_ips(cap):
 
     ips = set()
     for i, pkt in enumerate(cap):
-        logger.info(f"Extracting IPs from packet {i}/{len([p for p in cap])}")
+        logger.info("Extracting IPs from packet %d/%d", i, len([p for p in cap]))
         try:
             src = pkt.ip.src
             dst = pkt.ip.dst
             ips.add(src)
             ips.add(dst)
         except AttributeError:
-            logger.info(f"Packet {i} has no IP layer, skipping")
+            logger.info("Packet %d has no IP layer, skipping", i)
             continue  # Packet has no IP layer
     return ips
 
@@ -139,7 +141,7 @@ def extract_domains(cap):
 
     domains = set()
     for i, pkt in enumerate(cap):
-        logger.info(f"Extracting domains from packet {i}/{len([p for p in cap])}")
+        logger.info("Extracting domains from packet %d/%d", i, len([p for p in cap]))
         if "DNS" in pkt:
             try:
                 query = pkt.dns.qry_name
@@ -191,11 +193,11 @@ def save_report(report: dict, out_file: str | os.PathLike) -> None:
         with open(out_file, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=4)
     except IOError as e:
-        print(f"Error writing to file {out_file}: {e}")
+        logger.error("Error writing to file %s: %s", out_file, e)
     except TypeError as e:  # Catch JSON serialization errors
-        print(f"Error serializing report to JSON: {e}")
+        logger.error("Error serializing report to JSON: %s", e)
     except Exception as e:  # Catch other potential file-related errors
-        print(f"An unexpected error occurred during file operation: {e}")
+        logger.error("An unexpected error occurred during file operation: %s", e)
         raise e
 
 
@@ -211,10 +213,9 @@ def analyze_file(in_file, out_file=None) -> dict:
         FileNotFoundError: If the input file does not exist.
         Exception: If an error occurs during loading or analysis of the pcap file.
     """
-
-    logger.info(f"Loading pcap file {in_file}")  # debugging
+    logger.info("Loading pcap file %s", in_file)  # debugging
     cap = load_pcap(in_file)
-    logger.info(f"Loaded pcap file {in_file}")  # debugging
+    logger.info("Loaded pcap file %s", in_file)  # debugging
 
     return analyze(cap, out_file=out_file)
 
@@ -230,25 +231,24 @@ def analyze(cap, out_file=None) -> dict:
         dict: The assembled report containing extracted IPs, domains, and IP information.
     """
 
-    logger.info(f"Extracting IPs and domains")  # debugging
+    logger.info("Extracting IPs and domains")  # debugging
     ips = extract_ips(cap)
-    logger.info(f"Extracted {len(ips)} unique IPs")  # debugging
+    logger.info("Extracted %d unique IPs", len(ips))  # debugging
 
-    logger.info(f"Extracting Domains")  # debugging
+    logger.info("Extracting Domains")  # debugging
     domains = extract_domains(cap)
-    logger.info(f"Extracted {len(domains)} unique domains")  # debugging
+    logger.info("Extracted %d unique domains", len(domains))  # debugging
 
     ip_info = [get_ip_info(ip_address=addr) for addr in ips]
 
     # END FILE CAPTURE OBJ
-    logger.info(f"Closing pcap object")  # debugging
+    logger.info("Closing pcap object")  # debugging
     cap.close()
-    logger.info(f"Closed pcap object")  # debugging
+    logger.info("Closed pcap object")  # debugging
 
     report = assemble_report(ips, domains, ip_info=ip_info)
     if out_file is not None:
         save_report(report, out_file=out_file)
-        print(f"Report saved to {out_file}")
-        logger.info(f"Report saved to {out_file}")
+        logger.info("Report saved to %s", out_file)
 
     return report
