@@ -15,6 +15,28 @@ logging.basicConfig(level=logging.INFO)
 
 
 def main():
+    """
+    Main entry point for the PCAP IOC Analyzer CLI.
+    Parses command-line arguments to either capture network packets or analyze a given PCAP file for Indicators of Compromise (IOCs).
+    Supports specifying a PCAP file, IOC rules file, output report path, network interface, and capture duration.
+    Commands:
+        - capture: Captures live network traffic and saves it to a PCAP file.
+        - analyze: Analyzes a specified PCAP file for IOCs.
+    Arguments:
+        command (str): The command to execute ("capture" or "analyze").
+        -p, --pcap_file (str, optional): Path to the PCAP file to analyze. If not provided, a live capture is performed.
+        -r, --rules (str, optional): Path to IOC rules file (JSON/YAML). (Not yet implemented)
+        -o, --out_file (str, optional): Output report file path. Defaults to "report.json".
+        -i, --capture_interface (str, optional): Network interface to capture on. Defaults to "en0".
+        -t, --capture_duration (int, optional): Duration of capture in seconds. Defaults to 10.
+    Raises:
+        AssertionError: If the specified PCAP file does not exist when analyzing.
+    Side Effects:
+        - Captures network traffic and saves to a file.
+        - Analyzes PCAP files and generates a report.
+        - Prints status messages and logs events.
+    """
+    
     print(f"PCAP IOC Analyzer v0.1")  # Mostly for debugging :)
     parser = argparse.ArgumentParser(description="Analyze PCAPs for IOCs")
     parser.add_argument(
