@@ -46,20 +46,20 @@ def get_ip_info(ip_address: str) -> dict | Exception:
 
     return ip_info
 
+
 def is_number(s):
-    """Check if the input string is a number (int or float).
-    """
+    """Check if the input string is a number (int or float)."""
     if s is None:
         return False
     try:
-        float(s)  # or int(s) for integers only
+        float(s)
         return True
     except ValueError:
         return False
 
 
 def capture_packets(
-    output_filename: str=None, interface="en0", bpf_filter=None, duration=10
+    output_filename: str = None, interface="en0", bpf_filter=None, duration=10
 ) -> pyshark.capture.live_capture.LiveCapture:
     """Takes a live capture with PyShark
 

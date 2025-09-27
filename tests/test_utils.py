@@ -34,7 +34,7 @@ Dependencies:
 import json
 from unittest import mock
 import random
-   
+
 # Third-party imports
 import pytest
 from pyshark import FileCapture, LiveCapture
@@ -89,7 +89,8 @@ class DummyPkt:
     def __contains__(self, item):
         return item == "DNS" and hasattr(self, "dns")
 
-def random_ip()->str:
+
+def random_ip() -> str:
     """
     Generates a random IPv4 address in dotted-decimal notation.
 
@@ -98,6 +99,7 @@ def random_ip()->str:
     """
     ip = ".".join(str(random.randint(0, 255)) for _ in range(4))
     return ip
+
 
 def test_get_ip_info():
     """
@@ -172,7 +174,7 @@ def test_save_report(tmp_path):
     to a JSON file. The test verifies that the output file contains the expected unique IPs and domains.
     """
 
-    ips = {random_ip() for _ in range(2)} 
+    ips = {random_ip() for _ in range(2)}
     domains = {"example.com"}
     out_file = tmp_path / "report.json"
     report = utils.assemble_report(ips, domains)
@@ -187,13 +189,16 @@ def test_capture_packets():
     """
     Test the capture_packets function to ensure it returns a LiveCapture instance and can be properly closed.
     """
-    
+
     with pytest.raises(ValueError):
-        _ = utils.capture_packets(output_filename=None, duration=-1)  # Invalid interface should raise ValueError
-    
+        _ = utils.capture_packets(
+            output_filename=None, duration=-1
+        )  # Invalid interface should raise ValueError
+
     cap = utils.capture_packets(output_filename=None, duration=1)
     assert type(cap) == LiveCapture
     cap.close()
+
 
 def test_load_pcap_no_file():
     """
