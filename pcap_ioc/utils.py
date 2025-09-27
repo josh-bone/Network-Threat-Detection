@@ -37,7 +37,7 @@ def get_ip_info(ip_address: str) -> dict | Exception:
     try:
         # Using ipinfo.io API for IP data
         url = f"https://ipinfo.io/{ip_address}/json"
-        response = requests.get(url)
+        response = requests.get(url, timeout=5)
         response.raise_for_status()  # Raise HTTPError for bad responses
         ip_info = response.json()
     except requests.exceptions.RequestException as e:
