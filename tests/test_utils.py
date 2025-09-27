@@ -182,7 +182,7 @@ def test_load_pcap_no_file():
 
 @mock.patch("pcap_ioc.utils.load_pcap")
 @mock.patch("pcap_ioc.utils.save_report")
-def test_run_calls_all_functions(mock_save_report, mock_load_pcap):
+def test_analyze_file(mock_save_report, mock_load_pcap):
     """
     Test that the `analyze` function in the `utils` module correctly calls the `load_pcap` and `save_report` functions.
     This test verifies that:
@@ -197,7 +197,7 @@ def test_run_calls_all_functions(mock_save_report, mock_load_pcap):
         )
     ]
     mock_load_pcap.return_value = fake_cap
-    utils.analyze("fakefile.pcap", "output.json")
+    utils.analyze_file("fakefile.pcap", "output.json")
     mock_load_pcap.assert_called_once_with("fakefile.pcap")
     mock_save_report.assert_called_once()
     args, _ = mock_save_report.call_args
