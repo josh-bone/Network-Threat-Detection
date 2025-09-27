@@ -93,4 +93,4 @@ def main():
             pcap_file
         ), f"PCAP file {pcap_file} does not exist"  # At this point the file must exist
         print(f"Analyzing {pcap_file} with rules {args.rules}")
-        analyze_file(pcap_file, out_file=args.out_file, rules_file=args.rules)
+        analyze_file(pcap_file, out_file=args.out_file, rule_file=args.rules)

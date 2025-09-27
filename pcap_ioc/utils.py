@@ -96,7 +96,7 @@ def load_pcap(file_path) -> pyshark.capture.file_capture.FileCapture:
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"PCAP file {file_path} does not exist")
-    
+
     cap = pyshark.FileCapture(file_path)
     return cap
 
