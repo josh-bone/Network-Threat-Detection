@@ -47,7 +47,7 @@ def get_ip_info(ip_address: str) -> dict | Exception:
     return ip_info
 
 
-def is_number(s):
+def is_number(s) -> bool:
     """Check if the input string is a number (int or float)."""
     if s is None:
         return False
@@ -112,7 +112,7 @@ def load_pcap(file_path) -> pyshark.capture.file_capture.FileCapture:
     return cap
 
 
-def extract_ips(cap):
+def extract_ips(cap) -> set:
     """
     Extracts unique source and destination IP addresses from a packet capture.
     Iterates over all packets in the provided capture object, attempting to extract
@@ -140,7 +140,7 @@ def extract_ips(cap):
     return ips
 
 
-def extract_domains(cap):
+def extract_domains(cap) -> set:
     """
     Extracts unique domain names from DNS packets in a given packet capture.
     Iterates over the provided packet capture object, inspects each packet for DNS queries,
@@ -188,11 +188,50 @@ def assemble_report(ips, domains, ip_info=None, rule_file=None) -> dict:
         report["ip_info"] = ip_info
 
     if rule_file is not None:
-        # TODO: implement rules file
-        raise NotImplementedError("Rules file processing not yet implemented")
+        rules = load_rules(rule_file)
+        if 'ip_blacklist' in rules:
+            report['blacklisted_ips'] = [ip for ip in ips if ip in rules['ip_blacklist']]
+        if 'domain_blacklist' in rules:
+            report['blacklisted_domains'] = [domain for domain in domains if domain in rules['domain_blacklist']]
+        if 'blacklist city' in rules:
+            report['blacklisted_cities'] = []
+            if ip_info is not None:
+                for info in ip_info:
+                    if isinstance(info, dict) and 'city' in info and info['city'] in rules['blacklist city']:
+                        report['blacklisted_cities'].append(info)
 
     return report
 
+
+def load_rules(rule_file: str) -> dict:
+    """
+    Loads IOC rules from a JSON or YAML file.
+    Args:
+        rule_file (str): Path to the rules file.
+    Returns:
+        dict: The loaded rules as a dictionary.
+    Raises:
+        FileNotFoundError: If the specified rule_file does not exist.
+        ValueError: If the file format is unsupported or if there are parsing errors.
+    """
+    if not os.path.exists(rule_file):
+        raise FileNotFoundError(f"Rules file {rule_file} does not exist")
+
+    _, ext = os.path.splitext(rule_file)
+    try:
+        if ext.lower() == ".json":
+            with open(rule_file, "r", encoding="utf-8") as f:
+                rules = json.load(f)
+        elif ext.lower() in [".yaml", ".yml"]:
+            import yaml
+            with open(rule_file, "r", encoding="utf-8") as f:
+                rules = yaml.safe_load(f)
+        else:
+            raise ValueError("Unsupported file format. Use JSON or YAML.")
+    except (json.JSONDecodeError, yaml.YAMLError) as e:
+        raise ValueError(f"Error parsing rules file: {e}")
+
+    return rules
 
 def save_report(report: dict, out_file: str | os.PathLike) -> None:
     """

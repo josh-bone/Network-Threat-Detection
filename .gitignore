@@ -1,5 +1,5 @@
 # Package-specific ignores
-report.json
+*.json
 *.log
 *.pcap
 *.pcapng
