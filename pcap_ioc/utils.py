@@ -93,7 +93,9 @@ def load_pcap(file_path) -> pyshark.capture.file_capture.FileCapture:
         FileNotFoundError: If the specified file_path does not exist.
         pyshark.capture.capture.TSharkCrashException: If tshark fails to process the file.
     """
-    assert os.path.exists(file_path), f"File {file_path} does not exist"
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"PCAP file {file_path} does not exist")
+    
     cap = pyshark.FileCapture(file_path)
     return cap
 
@@ -150,7 +152,7 @@ def extract_domains(cap):
     return domains
 
 
-def assemble_report(ips, domains, ip_info=None) -> dict:
+def assemble_report(ips, domains, ip_info=None, rule_file=None) -> dict:
     """
     Assembles a report containing unique IPs, domains, and optional IP information.
     Args:
@@ -173,6 +175,10 @@ def assemble_report(ips, domains, ip_info=None) -> dict:
 
     if ip_info is not None:
         report["ip_info"] = ip_info
+
+    if rule_file is not None:
+        # TODO: implement rules file
+        raise NotImplementedError("Rules file processing not yet implemented")
 
     return report
 
@@ -200,7 +206,7 @@ def save_report(report: dict, out_file: str | os.PathLike) -> None:
         raise e
 
 
-def analyze_file(in_file, out_file=None) -> dict:
+def analyze_file(in_file: str, out_file: str = None, rule_file: str = None) -> dict:
     """
     Wrapper for the analyze() function. Takes an input pcap file, loads it, and analyzes it.
     Args:
@@ -216,10 +222,10 @@ def analyze_file(in_file, out_file=None) -> dict:
     cap = load_pcap(in_file)
     logger.info("Loaded pcap file %s", in_file)  # debugging
 
-    return analyze(cap, out_file=out_file)
+    return analyze(cap, out_file=out_file, rule_file=rule_file)
 
 
-def analyze(cap, out_file=None) -> dict:
+def analyze(cap, out_file: str = None, rule_file: str = None) -> dict:
     """
     Analyzes a pcap capture object to extract unique IP addresses and domains, gathers information about each IP,
     and generates a report. Optionally saves the report to a specified output file.
@@ -245,7 +251,8 @@ def analyze(cap, out_file=None) -> dict:
     cap.close()
     logger.info("Closed pcap object")  # debugging
 
-    report = assemble_report(ips, domains, ip_info=ip_info)
+    report = assemble_report(ips, domains, ip_info=ip_info, rule_file=rule_file)
+
     if out_file is not None:
         save_report(report, out_file=out_file)
         logger.info("Report saved to %s", out_file)
