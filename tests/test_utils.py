@@ -136,6 +136,7 @@ def test_extract_ips_basic():
     result = utils.extract_ips(pkts)
     assert result == set(random_ips)
 
+
 def test_extract_domains_basic():
     """
     Test that `extract_domains` correctly extracts unique domain names from a list of packets.
