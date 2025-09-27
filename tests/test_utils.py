@@ -37,7 +37,6 @@ import random
 
 # Third-party imports
 import pytest
-from pyshark import FileCapture, LiveCapture
 
 # Local imports
 from pcap_ioc import utils
@@ -135,8 +134,7 @@ def test_extract_ips_basic():
         DummyPkt(has_ip=False),  # Should be skipped
     ]
     result = utils.extract_ips(pkts)
-    assert result == {ip for ip in random_ips}
-
+    assert result == set(random_ips)
 
 def test_extract_domains_basic():
     """
