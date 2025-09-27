@@ -1,11 +1,80 @@
-import pytest
+"""
+Unit tests for the utility functions in the `pcap_ioc.utils` module.
+
+This test suite covers:
+- Extraction of IP addresses and domain names from packet-like objects.
+- Handling of packets with missing or malformed attributes.
+- Saving and loading of analysis reports in JSON format.
+- Error handling for missing PCAP files.
+- Integration of main analysis workflow, ensuring all core functions are called.
+- Interaction with external dependencies such as `pyshark.FileCapture`.
+
+Classes:
+    DummyPkt: A mock packet class used to simulate network packets with optional IP and DNS layers.
+
+Test Functions:
+    test_get_ip_info: Tests retrieval of IP information.
+    test_extract_ips_basic: Tests extraction of IP addresses from packets.
+    test_extract_domains_basic: Tests extraction of domain names from packets.
+    test_extract_domains_handles_attribute_error: Ensures robustness when DNS query attribute is missing.
+    test_save_report: Tests saving of analysis results to a JSON file.
+    test_load_pcap_no_file: Ensures FileNotFoundError is raised for missing PCAP files.
+    test_run_calls_all_functions: Verifies the main analysis function calls all necessary utilities.
+    test_capture_packets: Placeholder for future packet capture tests.
+    test_load_pcap_calls_pyshark: Ensures PCAP loading uses pyshark's FileCapture.
+
+Dependencies:
+    - pytest
+    - unittest.mock
+    - json
+    - pcap_ioc.utils
+"""
+
+# Standard imports
 import json
 from unittest import mock
+
+# Third-party imports
+import pytest
+
+# Local imports
 from pcap_ioc import utils
 
 
+
 class DummyPkt:
+    """
+    A dummy packet class for testing purposes, simulating network packet layers.
+    Attributes:
+        ip (mock.Mock): Mocked IP layer with 'src' and 'dst' attributes if 'has_ip' is True.
+        dns (mock.Mock): Mocked DNS layer with 'qry_name' attribute if 'has_dns' is True.
+        layers (list): List of present protocol layers as strings.
+    Args:
+        src (str, optional): Source IP address for the IP layer.
+        dst (str, optional): Destination IP address for the IP layer.
+        dns_query (str, optional): DNS query name for the DNS layer.
+        has_ip (bool, optional): Whether to include an IP layer. Defaults to True.
+        has_dns (bool, optional): Whether to include a DNS layer. Defaults to False.
+    Methods:
+        __contains__(item): Returns True if 'item' is "DNS" and the packet has a DNS layer.
+    """
+    
     def __init__(self, src=None, dst=None, dns_query=None, has_ip=True, has_dns=False):
+        """
+        Initialize the mock packet object with optional IP and DNS layers.
+
+        Args:
+            src (str, optional): Source IP address. Defaults to None.
+            dst (str, optional): Destination IP address. Defaults to None.
+            dns_query (str, optional): DNS query name. Defaults to None.
+            has_ip (bool, optional): Whether to include an IP layer. Defaults to True.
+            has_dns (bool, optional): Whether to include a DNS layer. Defaults to False.
+
+        Attributes:
+            layers (list): List of protocol layers present in the packet.
+            ip (mock.Mock): Mock object representing the IP layer (if has_ip is True).
+            dns (mock.Mock): Mock object representing the DNS layer (if has_dns is True).
+        """
         self.layers = []
         if has_ip:
             self.ip = mock.Mock()
@@ -21,6 +90,15 @@ class DummyPkt:
 
 
 def test_get_ip_info():
+    """
+    Test the `get_ip_info` function from the `utils` module.
+    This test verifies that:
+    - The function returns a dictionary when provided with a valid IP address.
+    - The returned dictionary contains the correct IP address under the "ip" key.
+    Returns:
+        None
+    """
+    
     ip = "1.1.1.1"
     result = utils.get_ip_info(ip)
     assert isinstance(result, dict)
@@ -28,6 +106,16 @@ def test_get_ip_info():
 
 
 def test_extract_ips_basic():
+    """
+    Test the basic functionality of the extract_ips function.
+    This test verifies that extract_ips correctly extracts all unique source and destination IP addresses
+    from a list of packet-like objects, while skipping packets that do not contain IP information.
+    Scenarios covered:
+    - Packets with valid source and destination IPs are included in the result.
+    - Packets without IP information (e.g., has_ip=False) are ignored.
+    - The result is a set containing all unique IP addresses found.
+    """
+    
     pkts = [
         DummyPkt(src="1.1.1.1", dst="2.2.2.2"),
         DummyPkt(src="3.3.3.3", dst="4.4.4.4"),
@@ -38,6 +126,13 @@ def test_extract_ips_basic():
 
 
 def test_extract_domains_basic():
+    """
+    Test that `extract_domains` correctly extracts unique domain names from a list of packets.
+    This test creates a list of dummy packet objects, some containing DNS queries and some not.
+    It verifies that the function returns a set of all unique domain names found in the DNS queries,
+    ignoring packets without DNS information.
+    """
+    
     pkts = [
         DummyPkt(has_ip=True, has_dns=True, dns_query="example.com"),
         DummyPkt(has_ip=True, has_dns=True, dns_query="test.com"),
@@ -48,6 +143,11 @@ def test_extract_domains_basic():
 
 
 def test_extract_domains_handles_attribute_error():
+    """
+    Test that extract_domains returns an empty set when a packet's DNS query name attribute is missing,
+    ensuring it gracefully handles AttributeError exceptions.
+    """
+    
     pkt = DummyPkt(has_ip=True, has_dns=True)
     del pkt.dns.qry_name  # Remove attribute to trigger AttributeError
     pkts = [pkt]
@@ -56,6 +156,11 @@ def test_extract_domains_handles_attribute_error():
 
 
 def test_save_report(tmp_path):
+    """
+    Test the `save_report` function to ensure it correctly writes the provided sets of IPs and domains
+    to a JSON file. The test verifies that the output file contains the expected unique IPs and domains.
+    """
+    
     ips = {"1.1.1.1", "2.2.2.2"}
     domains = {"example.com"}
     out_file = tmp_path / "report.json"
@@ -67,6 +172,10 @@ def test_save_report(tmp_path):
 
 
 def test_load_pcap_no_file():
+    """
+    Test that utils.load_pcap raises a FileNotFoundError when attempting to load a non-existent pcap file.
+    """
+    
     with pytest.raises(FileNotFoundError):
         utils.load_pcap("nonexistent.pcap")
 
@@ -74,6 +183,14 @@ def test_load_pcap_no_file():
 @mock.patch("pcap_ioc.utils.load_pcap")
 @mock.patch("pcap_ioc.utils.save_report")
 def test_run_calls_all_functions(mock_save_report, mock_load_pcap):
+    """
+    Test that the `analyze` function in the `utils` module correctly calls the `load_pcap` and `save_report` functions.
+    This test verifies that:
+    - `load_pcap` is called once with the provided pcap file path.
+    - `save_report` is called once with the expected arguments, including source IP, destination IP, DNS query, and output file name.
+    - The arguments passed to `save_report` contain the expected values extracted from the fake packet data.
+    """
+    
     fake_cap = [
         DummyPkt(
             src="1.1.1.1", dst="2.2.2.2", has_ip=True, has_dns=True, dns_query="abc.com"
@@ -90,12 +207,12 @@ def test_run_calls_all_functions(mock_save_report, mock_load_pcap):
     assert args[2] == "output.json"
 
 
-def test_capture_packets():
-    # TODO
-    pass
-
-
 @mock.patch("pyshark.FileCapture")
 def test_load_pcap_calls_pyshark(mock_file_capture):
+    """
+    Test that the `utils.load_pcap` function calls the `pyshark.FileCapture` (mocked as `mock_file_capture`)
+    with the correct file path argument.
+    """
+    
     utils.load_pcap("somefile.pcap")
     mock_file_capture.assert_called_once_with("somefile.pcap")
