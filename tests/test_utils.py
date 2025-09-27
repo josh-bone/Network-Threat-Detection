@@ -200,9 +200,8 @@ def test_analyze_file(mock_save_report, mock_load_pcap):
     utils.analyze_file("fakefile.pcap", "output.json")
     mock_load_pcap.assert_called_once_with("fakefile.pcap")
     mock_save_report.assert_called_once()
-    args, _ = mock_save_report.call_args
-    assert len(args) == 2, f"Expected two arguments to save_report, got this args object instead: {args}\nargs object type: {type(args)}"
+    args, kwargs = mock_save_report.call_args
     assert "1.1.1.1" in args[0]["unique_ips"]
     assert "2.2.2.2" in args[0]["unique_ips"]
     assert "abc.com" in args[0]["unique_domains"]
-    assert args[1] == "output.json"
+    assert kwargs["out_file"] == "output.json"
