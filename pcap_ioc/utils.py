@@ -117,8 +117,7 @@ def extract_ips(cap):
 
     ips = set()
     for i, pkt in enumerate(cap):
-        # I know this seems like an unnecessary list comprehension, but len(cap) always returns 0...
-        logger.info("Extracting IPs from packet %d/%d", i, len([p for p in cap]))
+        logger.info("Extracting IPs from packet %d/%d", i, len(list(cap)))
         try:
             src = pkt.ip.src
             dst = pkt.ip.dst
@@ -143,7 +142,7 @@ def extract_domains(cap):
 
     domains = set()
     for i, pkt in enumerate(cap):
-        logger.info("Extracting domains from packet %d/%d", i, len([p for p in cap]))
+        logger.info("Extracting domains from packet %d/%d", i, len(list(cap)))
         if "DNS" in pkt:
             try:
                 query = pkt.dns.qry_name
