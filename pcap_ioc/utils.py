@@ -229,9 +229,10 @@ def load_rules(rule_file: str) -> dict:
         elif ext.lower() in [".yaml", ".yml"]:
             raise NotImplementedError("YAML support not implemented yet")
         else:
-            raise ValueError("Unsupported file format. Expected JSON, but got %s.", ext)
+            raise ValueError(f"Unsupported file format. Expected JSON, but got {ext}.")
     except json.JSONDecodeError as e:
-        raise ValueError(f"Error parsing rules file: {e}")
+        logger.error("Error parsing rules file: %s", e)
+        raise e
 
     return rules
 
