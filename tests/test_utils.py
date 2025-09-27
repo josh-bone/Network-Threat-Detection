@@ -199,7 +199,7 @@ def test_run_calls_all_functions(mock_save_report, mock_load_pcap):
     utils.analyze("fakefile.pcap", "output.json")
     mock_load_pcap.assert_called_once_with("fakefile.pcap")
     mock_save_report.assert_called_once()
-    args, kwargs = mock_save_report.call_args
+    args, _ = mock_save_report.call_args
     assert "1.1.1.1" in args[0]
     assert "2.2.2.2" in args[0]
     assert "abc.com" in args[1]
