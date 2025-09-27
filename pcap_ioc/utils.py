@@ -232,7 +232,7 @@ def load_rules(rule_file: str) -> dict:
             raise ValueError(f"Unsupported file format. Expected JSON, but got {ext}.")
     except json.JSONDecodeError as e:
         logger.error("Error parsing rules file: %s", e)
-        raise e
+        raise ValueError(f"Error parsing rules file: {e}") from e
 
     return rules
 
