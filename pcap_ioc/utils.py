@@ -189,16 +189,20 @@ def assemble_report(ips, domains, ip_info=None, rule_file=None) -> dict:
 
     if rule_file is not None:
         rules = load_rules(rule_file)
-        if 'ip_blacklist' in rules:
-            report['blacklisted_ips'] = [ip for ip in ips if ip in rules['ip_blacklist']]
-        if 'domain_blacklist' in rules:
-            report['blacklisted_domains'] = [domain for domain in domains if domain in rules['domain_blacklist']]
-        if 'city_blacklist' in rules:
-            report['blacklisted_cities'] = []
+        if "ip_blacklist" in rules:
+            report["blacklisted_ips"] = [
+                ip for ip in ips if ip in rules["ip_blacklist"]
+            ]
+        if "domain_blacklist" in rules:
+            report["blacklisted_domains"] = [
+                domain for domain in domains if domain in rules["domain_blacklist"]
+            ]
+        if "city_blacklist" in rules:
+            report["blacklisted_cities"] = []
             if ip_info is not None:
                 for info in ip_info:
-                    if 'city' in info and info['city'] in rules['city_blacklist']:
-                        report['blacklisted_cities'].append(info)
+                    if "city" in info and info["city"] in rules["city_blacklist"]:
+                        report["blacklisted_cities"].append(info)
 
     return report
 
@@ -224,6 +228,7 @@ def load_rules(rule_file: str) -> dict:
                 rules = json.load(f)
         elif ext.lower() in [".yaml", ".yml"]:
             import yaml
+
             with open(rule_file, "r", encoding="utf-8") as f:
                 rules = yaml.safe_load(f)
         else:
@@ -232,6 +237,7 @@ def load_rules(rule_file: str) -> dict:
         raise ValueError(f"Error parsing rules file: {e}")
 
     return rules
+
 
 def save_report(report: dict, out_file: str | os.PathLike) -> None:
     """
