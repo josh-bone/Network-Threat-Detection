@@ -201,6 +201,7 @@ def test_analyze_file(mock_save_report, mock_load_pcap):
     mock_load_pcap.assert_called_once_with("fakefile.pcap")
     mock_save_report.assert_called_once()
     args, _ = mock_save_report.call_args
+    assert len(args) == 2, f"Expected two arguments to save_report, got {len(args)}"
     assert "1.1.1.1" in args[0]["unique_ips"]
     assert "2.2.2.2" in args[0]["unique_ips"]
     assert "abc.com" in args[0]["unique_domains"]
