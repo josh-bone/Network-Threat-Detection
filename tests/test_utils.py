@@ -164,7 +164,7 @@ def test_save_report(tmp_path):
     domains = {"example.com"}
     out_file = tmp_path / "report.json"
     utils.save_report(ips, domains, str(out_file))
-    with open(out_file, 'r', encoding='utf-8') as f:
+    with open(out_file, "r", encoding="utf-8") as f:
         data = json.load(f)
     assert set(data["unique_ips"]) == ips
     assert set(data["unique_domains"]) == domains
