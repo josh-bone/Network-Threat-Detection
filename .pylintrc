@@ -3,8 +3,7 @@ ignore=venv
 jobs=1
 
 [MESSAGES CONTROL]
-disable=C0301  # line-too-long
-disable=R0903 # too-few-public-methods   
+disable=too-few-public-methods,line-too-long
 
 [FORMAT]
 max-line-length=88
