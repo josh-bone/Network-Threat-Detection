@@ -15,7 +15,7 @@ output-format=colorized
 reports=no
 
 [DESIGN]
-max-args=5
+max-args=6
 max-locals=15
 max-returns=6
 max-branches=12

@@ -37,7 +37,7 @@ def main():
         - Prints status messages and logs events.
     """
 
-    print(f"PCAP IOC Analyzer v0.1")  # Mostly for debugging :)
+    print("PCAP IOC Analyzer v0.1")  # Mostly for debugging :)
     parser = argparse.ArgumentParser(description="Analyze PCAPs for IOCs")
     parser.add_argument(
         "command", choices=["capture", "analyze"], help="Command to execute"
@@ -86,11 +86,10 @@ def main():
             duration=args.capture_duration,
         )
         pcap_file = capture._output_file
-        print(f"Capture saved to {pcap_file}")  # debugging
-        logger.info(f"Capture saved to {pcap_file}")
+        logger.info("Capture saved to %s", pcap_file)
     elif args.command == "analyze":
         assert os.path.exists(
             pcap_file
         ), f"PCAP file {pcap_file} does not exist"  # At this point the file must exist
-        print(f"Analyzing {pcap_file} with rules {args.rules}")
+        logger.info("Analyzing %s with rules in %s", pcap_file, args.rules)
         analyze_file(pcap_file, out_file=args.out_file, rule_file=args.rules)
