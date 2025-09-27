@@ -6,7 +6,7 @@ authors = [
     { name = "Joshua Bone", email = "jbone.data@gmail.com" }
 ]
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 license = { text = "GNU GENERAL PUBLIC LICENSE" }
 keywords = ["pcap", "ioc", "security", "network"]
 dependencies = [
