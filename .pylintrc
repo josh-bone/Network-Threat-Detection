@@ -1,0 +1,24 @@
+[MASTER]
+ignore=venv
+jobs=1
+
+[MESSAGES CONTROL]
+disable=C0301  # line-too-long
+
+[FORMAT]
+max-line-length=88
+indent-string='    '
+
+[REPORTS]
+output-format=colorized
+reports=no
+
+[DESIGN]
+max-args=5
+max-locals=15
+max-returns=6
+max-branches=12
+max-statements=50
+
+[TYPECHECK]
+ignore-missing-imports=no

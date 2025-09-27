@@ -13,6 +13,11 @@ dependencies = [
     "pyshark >= 0.6", "requests>=2.32.5"
 ]
 
+[project.optional-dependencies]
+test = [
+    "pytest"
+]
+
 [project.scripts]
 pcap-ioc = "pcap_ioc.cli:main"
 
