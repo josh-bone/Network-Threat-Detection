@@ -5,7 +5,6 @@ import requests
 import os
 import sys
 import logging
-from tqdm import tqdm
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -65,7 +64,7 @@ def load_pcap(file_path):
 
 def extract_ips(cap):
     ips = set()
-    for i,pkt in enumerate(tqdm(cap)):
+    for i,pkt in enumerate(cap):
         logger.info(f"Extracting IPs from packet {i}/{len([p for p in cap])}")
         try:
             src = pkt.ip.src
@@ -73,12 +72,13 @@ def extract_ips(cap):
             ips.add(src)
             ips.add(dst)
         except AttributeError:
+            logger.info(f"Packet {i} has no IP layer, skipping")
             continue  # Packet has no IP layer
     return ips
 
 def extract_domains(cap):
     domains = set()
-    for i,pkt in enumerate(tqdm(cap)):
+    for i,pkt in enumerate(cap):
         logger.info(f"Extracting domains from packet {i}/{len([p for p in cap])}")
         if 'DNS' in pkt:
             try:
