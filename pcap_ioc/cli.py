@@ -52,7 +52,7 @@ def main():
 
     if args.command == "capture" or (pcap_file is None and args.command == "analyze"):
         capture = capture_packets(
-            output_filename=pcap_file,
+            output_filename=args.out_file,
             interface=args.capture_interface,
             duration=args.capture_duration,
         )
