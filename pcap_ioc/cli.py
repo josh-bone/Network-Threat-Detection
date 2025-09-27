@@ -1,3 +1,7 @@
+"""
+Command-line interface for the pcap_ioc tool.
+"""
+
 import argparse
 import os
 from pcap_ioc.utils import capture_packets, analyze_file

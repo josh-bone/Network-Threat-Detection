@@ -1,3 +1,15 @@
+"""
+utils.py
+This module provides utility functions for analyzing PCAP files and extracting Indicators of Compromise (IOCs) such as IP addresses and domain names. It leverages the PyShark library for packet capture and parsing, and integrates with external APIs (e.g., ipinfo.io) to enrich IP address data.
+Main functionalities include:
+- Capturing live network packets and saving them to a file.
+- Loading and parsing PCAP files.
+- Extracting unique IP addresses and domain names from packet captures.
+- Querying external services for additional IP address information.
+- Assembling and saving analysis reports in JSON format.
+Logging is used throughout for debugging and informational purposes.
+"""
+
 import pyshark
 import json
 import argparse
@@ -99,7 +111,6 @@ def extract_domains(cap):
                 continue
     return domains
 
-
 def assemble_report(ips, domains, ip_info=None):
     report = {
         "save_time": datetime.now().isoformat(),
@@ -109,9 +120,8 @@ def assemble_report(ips, domains, ip_info=None):
 
     if ip_info is not None:
         report["ip_info"] = ip_info
-
+        
     return report
-
 
 def save_report(report, out_file):
 
@@ -149,5 +159,5 @@ def analyze(cap, out_file=None):
         save_report(report, out_file=out_file)
         print(f"Report saved to {out_file}")
         logger.info(f"Report saved to {out_file}")
-
+        
     return report
