@@ -46,6 +46,17 @@ def get_ip_info(ip_address: str) -> dict | Exception:
 
     return ip_info
 
+def is_number(s):
+    """Check if the input string is a number (int or float).
+    """
+    if s is None:
+        return False
+    try:
+        float(s)  # or int(s) for integers only
+        return True
+    except ValueError:
+        return False
+
 
 def capture_packets(
     output_filename: str=None, interface="en0", bpf_filter=None, duration=10
@@ -61,7 +72,7 @@ def capture_packets(
     Returns:
         pyshark capture object (idk the real name): you can iterate over this to get individual packets.
     """
-    if duration is None or (duration > 0):
+    if duration <= 0 or not is_number(duration):
         raise ValueError("Duration must be a positive integer")
 
     logger.info(
