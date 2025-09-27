@@ -1,6 +1,6 @@
 import argparse
 import os
-from pcap_ioc.utils import run, capture_packets, analyze_file
+from pcap_ioc.utils import capture_packets, analyze_file
 import logging
 
 logger = logging.getLogger(__name__)

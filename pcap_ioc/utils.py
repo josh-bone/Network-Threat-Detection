@@ -100,8 +100,7 @@ def extract_domains(cap):
     return domains
 
 
-def save_report(ips, domains, out_file, ip_info=None):
-
+def assemble_report(ips, domains, ip_info=None):
     report = {
         "save_time": datetime.now().isoformat(),
         "unique_ips": list(ips),
@@ -110,6 +109,11 @@ def save_report(ips, domains, out_file, ip_info=None):
 
     if ip_info is not None:
         report["ip_info"] = ip_info
+
+    return report
+
+
+def save_report(report, out_file):
 
     with open(out_file, "w") as f:
         json.dump(report, f, indent=4)
@@ -140,7 +144,10 @@ def analyze(cap, out_file=None):
     cap.close()
     logger.info(f"Closed pcap object")  # debugging
 
+    report = assemble_report(ips, domains, ip_info=ip_info)
     if out_file is not None:
-        save_report(ips, domains, out_file, ip_info=ip_info)
+        save_report(report, out_file=out_file)
         print(f"Report saved to {out_file}")
         logger.info(f"Report saved to {out_file}")
+
+    return report
