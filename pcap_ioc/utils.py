@@ -79,12 +79,37 @@ def capture_packets(
     return capture
 
 
-def load_pcap(file_path):
+def load_pcap(file_path) -> pyshark.capture.file_capture.FileCapture:
+    """
+    Loads a PCAP file and returns a PyShark FileCapture object for packet analysis.
+
+        file_path (str): The path to the PCAP file to be loaded.
+
+        pyshark.capture.file_capture.FileCapture: An object representing the captured packets from the PCAP file.
+
+    Raises:
+        FileNotFoundError: If the specified file_path does not exist.
+        pyshark.capture.capture.TSharkCrashException: If tshark fails to process the file.
+    """
+    assert os.path.exists(file_path), f"File {file_path} does not exist"
     cap = pyshark.FileCapture(file_path)
     return cap
 
 
 def extract_ips(cap):
+    """
+    Extracts unique source and destination IP addresses from a packet capture.
+    Iterates over all packets in the provided capture object, attempting to extract
+    the source and destination IP addresses from each packet's IP layer. If a packet
+    does not contain an IP layer, it is skipped. Logs progress and any packets
+    without an IP layer.
+    Args:
+        cap: An iterable packet capture object, where each packet is expected to have
+             an 'ip' attribute with 'src' and 'dst' fields.
+    Returns:
+        set: A set of unique IP addresses (as strings) found in the capture.
+    """
+    
     ips = set()
     for i, pkt in enumerate(cap):
         logger.info(f"Extracting IPs from packet {i}/{len([p for p in cap])}")
@@ -100,6 +125,16 @@ def extract_ips(cap):
 
 
 def extract_domains(cap):
+    """
+    Extracts unique domain names from DNS packets in a given packet capture.
+    Iterates over the provided packet capture object, inspects each packet for DNS queries,
+    and collects the queried domain names into a set to ensure uniqueness.
+    Args:
+        cap (iterable): An iterable of packet objects, each potentially containing DNS information.
+    Returns:
+        set: A set of unique domain names (as strings) extracted from DNS query packets.
+    """
+    
     domains = set()
     for i, pkt in enumerate(cap):
         logger.info(f"Extracting domains from packet {i}/{len([p for p in cap])}")
@@ -111,7 +146,21 @@ def extract_domains(cap):
                 continue
     return domains
 
-def assemble_report(ips, domains, ip_info=None):
+def assemble_report(ips, domains, ip_info=None) -> dict:
+    """
+    Assembles a report containing unique IPs, domains, and optional IP information.
+    Args:
+        ips (Iterable): A collection of unique IP addresses.
+        domains (Iterable): A collection of unique domain names.
+        ip_info (Optional[Any]): Additional information about the IPs (default is None).
+    Returns:
+        dict: A dictionary containing the report with the following keys:
+            - "save_time": ISO formatted timestamp of report creation.
+            - "unique_ips": List of unique IP addresses.
+            - "unique_domains": List of unique domain names.
+            - "ip_info": (Optional) Additional IP information if provided.
+    """
+    
     report = {
         "save_time": datetime.now().isoformat(),
         "unique_ips": list(ips),
@@ -123,13 +172,41 @@ def assemble_report(ips, domains, ip_info=None):
         
     return report
 
-def save_report(report, out_file):
+def save_report(report:dict, out_file:str|os.PathLike) -> None:
+    """
+    Saves the given report as a JSON file.
+    Args:
+        report (dict): The report data to be saved.
+        out_file (str or Path): The file path where the report will be saved.
+    Raises:
+        TypeError: If the report is not serializable to JSON.
+        OSError: If the file cannot be written.
+    """
 
-    with open(out_file, "w") as f:
-        json.dump(report, f, indent=4)
+    try:
+        with open(out_file, "w") as f:
+            json.dump(report, f, indent=4)
+    except IOError as e:
+        print(f"Error writing to file {out_file}: {e}")
+    except TypeError as e: # Catch JSON serialization errors
+        print(f"Error serializing report to JSON: {e}")
+    except Exception as e: # Catch other potential file-related errors
+        print(f"An unexpected error occurred during file operation: {e}")
+        raise e
 
-
-def analyze_file(in_file, out_file=None):
+def analyze_file(in_file, out_file=None) -> dict:
+    """
+    Wrapper for the analyze() function. Takes an input pcap file, loads it, and analyzes it.
+    Args:
+        in_file (str): Path to the input pcap file to be analyzed.
+        out_file (str, optional): Path to the output file where analysis results will be saved. Defaults to None.
+    Returns:
+        dict: The result of the analysis, as returned by the `analyze` function.
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        Exception: If an error occurs during loading or analysis of the pcap file.
+    """
+    
     logger.info(f"Loading pcap file {in_file}")  # debugging
     cap = load_pcap(in_file)
     logger.info(f"Loaded pcap file {in_file}")  # debugging
@@ -137,7 +214,17 @@ def analyze_file(in_file, out_file=None):
     return analyze(cap, out_file=out_file)
 
 
-def analyze(cap, out_file=None):
+def analyze(cap, out_file=None) -> dict:
+    """
+    Analyzes a pcap capture object to extract unique IP addresses and domains, gathers information about each IP,
+    and generates a report. Optionally saves the report to a specified output file.
+    Args:
+        cap: The pcap capture object to analyze.
+        out_file (str, optional): Path to save the generated report. If None, the report is not saved to disk.
+    Returns:
+        dict: The assembled report containing extracted IPs, domains, and IP information.
+    """
+    
 
     logger.info(f"Extracting IPs and domains")  # debugging
     ips = extract_ips(cap)
