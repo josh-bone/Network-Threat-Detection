@@ -61,7 +61,8 @@ def capture_packets(
     Returns:
         pyshark capture object (idk the real name): you can iterate over this to get individual packets.
     """
-    assert duration is not None and duration > 0, "Duration must be a positive integer"
+    if duration is None or (duration > 0):
+        raise ValueError("Duration must be a positive integer")
 
     logger.info(
         "Starting live capture on interface %s for %d seconds", interface, duration
