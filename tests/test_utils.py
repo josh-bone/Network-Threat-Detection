@@ -201,7 +201,7 @@ def test_analyze_file(mock_save_report, mock_load_pcap):
     mock_load_pcap.assert_called_once_with("fakefile.pcap")
     mock_save_report.assert_called_once()
     args, _ = mock_save_report.call_args
-    assert "1.1.1.1" in args[0]
-    assert "2.2.2.2" in args[0]
-    assert "abc.com" in args[1]
-    assert args[2] == "output.json"
+    assert "1.1.1.1" in args[0]["unique_ips"]
+    assert "2.2.2.2" in args[0]["unique_ips"]
+    assert "abc.com" in args[0]["unique_domains"]
+    assert args[1] == "output.json"
