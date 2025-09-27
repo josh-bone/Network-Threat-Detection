@@ -80,13 +80,11 @@ def main():
     pcap_file = args.pcap_file
 
     if args.command == "capture" or (pcap_file is None and args.command == "analyze"):
-        capture = capture_packets(
+        _ = capture_packets(
             output_filename=args.out_file,
             interface=args.capture_interface,
             duration=args.capture_duration,
         )
-        pcap_file = capture._output_file
-        logger.info("Capture saved to %s", pcap_file)
     elif args.command == "analyze":
         assert os.path.exists(
             pcap_file
