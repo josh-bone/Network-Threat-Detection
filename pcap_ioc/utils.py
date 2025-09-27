@@ -193,11 +193,11 @@ def assemble_report(ips, domains, ip_info=None, rule_file=None) -> dict:
             report['blacklisted_ips'] = [ip for ip in ips if ip in rules['ip_blacklist']]
         if 'domain_blacklist' in rules:
             report['blacklisted_domains'] = [domain for domain in domains if domain in rules['domain_blacklist']]
-        if 'blacklist city' in rules:
+        if 'city_blacklist' in rules:
             report['blacklisted_cities'] = []
             if ip_info is not None:
                 for info in ip_info:
-                    if isinstance(info, dict) and 'city' in info and info['city'] in rules['blacklist city']:
+                    if 'city' in info and info['city'] in rules['city_blacklist']:
                         report['blacklisted_cities'].append(info)
 
     return report
