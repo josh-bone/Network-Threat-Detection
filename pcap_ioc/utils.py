@@ -116,6 +116,7 @@ def extract_ips(cap):
 
     ips = set()
     for i, pkt in enumerate(cap):
+        # I know this seems like an unnecessary list comprehension, but len(cap) always returns 0...
         logger.info("Extracting IPs from packet %d/%d", i, len([p for p in cap]))
         try:
             src = pkt.ip.src
