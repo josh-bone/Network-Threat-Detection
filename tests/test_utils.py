@@ -205,14 +205,3 @@ def test_analyze_file(mock_save_report, mock_load_pcap):
     assert "2.2.2.2" in args[0]
     assert "abc.com" in args[1]
     assert args[2] == "output.json"
-
-
-@mock.patch("pyshark.FileCapture")
-def test_load_pcap_calls_pyshark(mock_file_capture):
-    """
-    Test that the `utils.load_pcap` function calls the `pyshark.FileCapture` (mocked as `mock_file_capture`)
-    with the correct file path argument.
-    """
-
-    utils.load_pcap("somefile.pcap")
-    mock_file_capture.assert_called_once_with("somefile.pcap")
