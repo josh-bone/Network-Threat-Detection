@@ -19,6 +19,3 @@ max-locals=15
 max-returns=6
 max-branches=12
 max-statements=50
-
-[TYPECHECK]
-ignore-missing-imports=no
