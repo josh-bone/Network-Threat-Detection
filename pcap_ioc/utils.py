@@ -246,11 +246,6 @@ def analyze(cap, out_file: str = None, rule_file: str = None) -> dict:
 
     ip_info = [get_ip_info(ip_address=addr) for addr in ips]
 
-    # END FILE CAPTURE OBJ
-    logger.info("Closing pcap object")  # debugging
-    cap.close()
-    logger.info("Closed pcap object")  # debugging
-
     report = assemble_report(ips, domains, ip_info=ip_info, rule_file=rule_file)
 
     if out_file is not None:
