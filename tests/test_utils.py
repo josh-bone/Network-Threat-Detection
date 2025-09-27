@@ -33,7 +33,8 @@ Dependencies:
 # Standard imports
 import json
 from unittest import mock
-
+import random
+   
 # Third-party imports
 import pytest
 from pyshark import FileCapture, LiveCapture
@@ -88,6 +89,15 @@ class DummyPkt:
     def __contains__(self, item):
         return item == "DNS" and hasattr(self, "dns")
 
+def random_ip()->str:
+    """
+    Generates a random IPv4 address in dotted-decimal notation.
+
+    Returns:
+        str: IP address
+    """
+    ip = ".".join(str(random.randint(0, 255)) for _ in range(4))
+    return ip
 
 def test_get_ip_info():
     """
@@ -99,7 +109,7 @@ def test_get_ip_info():
         None
     """
 
-    ip = "1.1.1.1"
+    ip = random_ip()
     result = utils.get_ip_info(ip)
     assert isinstance(result, dict)
     assert result.get("ip") == ip
@@ -115,14 +125,15 @@ def test_extract_ips_basic():
     - Packets without IP information (e.g., has_ip=False) are ignored.
     - The result is a set containing all unique IP addresses found.
     """
+    random_ips = [random_ip() for _ in range(4)]
 
     pkts = [
-        DummyPkt(src="1.1.1.1", dst="2.2.2.2"),
-        DummyPkt(src="3.3.3.3", dst="4.4.4.4"),
+        DummyPkt(src=random_ip[0], dst=random_ip[1]),
+        DummyPkt(src=random_ip[2], dst=random_ip[3]),
         DummyPkt(has_ip=False),  # Should be skipped
     ]
     result = utils.extract_ips(pkts)
-    assert result == {"1.1.1.1", "2.2.2.2", "3.3.3.3", "4.4.4.4"}
+    assert result == {ip for ip in random_ips}
 
 
 def test_extract_domains_basic():
@@ -161,8 +172,8 @@ def test_save_report(tmp_path):
     to a JSON file. The test verifies that the output file contains the expected unique IPs and domains.
     """
 
-    ips = {"1.1.1.1", "2.2.2.2"}  # TODO: pass a more representative object
-    domains = {"example.com"}  # TODO: pass a more representative object
+    ips = {random_ip() for _ in range(2)} 
+    domains = {"example.com"}
     out_file = tmp_path / "report.json"
     report = utils.assemble_report(ips, domains)
     utils.save_report(report, out_file=str(out_file))
