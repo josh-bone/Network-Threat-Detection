@@ -3,6 +3,11 @@ report.json
 *.log
 *.pcap
 *.pcapng
+*.temp/
+*.temp/*
+test/captures/
+test/captures/*
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

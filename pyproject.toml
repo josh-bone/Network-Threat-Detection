@@ -10,7 +10,7 @@ requires-python = ">=3.7"
 license = { text = "GNU GENERAL PUBLIC LICENSE" }
 keywords = ["pcap", "ioc", "security", "network"]
 dependencies = [
-    "pyshark >= 0.6"
+    "pyshark >= 0.6", "requests>=2.32.5"
 ]
 
 [project.scripts]

@@ -58,7 +58,11 @@ def test_save_report(tmp_path):
         data = json.load(f)
     assert set(data['unique_ips']) == ips
     assert set(data['unique_domains']) == domains
-
+    
+def test_load_pcap_no_file():
+    with pytest.raises(FileNotFoundError):
+        utils.load_pcap("nonexistent.pcap")
+        
 @mock.patch("pcap_ioc.utils.load_pcap")
 @mock.patch("pcap_ioc.utils.save_report")
 def test_run_calls_all_functions(mock_save_report, mock_load_pcap):
@@ -72,6 +76,10 @@ def test_run_calls_all_functions(mock_save_report, mock_load_pcap):
     assert '2.2.2.2' in args[0]
     assert 'abc.com' in args[1]
     assert args[2] == "output.json"
+    
+def test_capture_packets():
+    # TODO
+    pass 
 
 @mock.patch("pyshark.FileCapture")
 def test_load_pcap_calls_pyshark(mock_file_capture):

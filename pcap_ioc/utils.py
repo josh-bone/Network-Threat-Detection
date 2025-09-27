@@ -2,6 +2,14 @@ import pyshark
 import json
 import argparse
 import requests
+import os
+import sys
+import logging
+from tqdm import tqdm
+from datetime import datetime
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 def get_ip_info(ip_address:str) -> dict | Exception:
     """Calls out to an API at ipinfo.io to get information about an IP address.
@@ -24,9 +32,32 @@ def get_ip_info(ip_address:str) -> dict | Exception:
         
     return ip_info
 
-def make_pcap(file_path):
-    # TODO Use pyshark to capture packets and put them in file_path
-    pass
+def capture_packets(output_filename:str, interface="en0", bpf_filter=None, duration=10):
+    """Takes a live capture with PyShark
+
+    Args:
+        output_filename (str): The file to save the capture to. If None, we won't save to a file.
+        interface (str, optional): interface on which we capture. Defaults to "en0".
+        bpf_filter (_type_, optional): wireshark filter, e.g. "udp port 555". Defaults to None.
+        duration (int, optional): Length of capture in seconds. Defaults to 10.
+
+    Returns:
+        pyshark capture object (idk the real name): you can iterate over this to get individual packets.
+    """
+    assert duration is not None and duration > 0, "Duration must be a positive integer"
+    
+    logger.info(f"Starting live capture on interface {interface} for {duration} seconds")
+    try:
+        capture = pyshark.LiveCapture(interface=interface, bpf_filter=bpf_filter, output_file=output_filename)
+        capture.sniff(timeout=duration)
+    except KeyboardInterrupt:
+        print("\nCtrl-C pressed. Exiting gracefully.")
+        sys.exit(0) # Explicitly exit the program
+
+    logger.info(f"Capture finished, saving to {output_filename}")
+    logger.info(f"Captured {len(capture)} packets on interface {interface}")
+    
+    return capture
 
 def load_pcap(file_path):
     cap = pyshark.FileCapture(file_path)
@@ -34,7 +65,8 @@ def load_pcap(file_path):
 
 def extract_ips(cap):
     ips = set()
-    for pkt in cap:
+    for i,pkt in enumerate(tqdm(cap)):
+        logger.info(f"Extracting IPs from packet {i}/{len([p for p in cap])}")
         try:
             src = pkt.ip.src
             dst = pkt.ip.dst
@@ -46,7 +78,8 @@ def extract_ips(cap):
 
 def extract_domains(cap):
     domains = set()
-    for pkt in cap:
+    for i,pkt in enumerate(tqdm(cap)):
+        logger.info(f"Extracting domains from packet {i}/{len([p for p in cap])}")
         if 'DNS' in pkt:
             try:
                 query = pkt.dns.qry_name
@@ -56,20 +89,41 @@ def extract_domains(cap):
     return domains
 
 def save_report(ips, domains, out_file):
+        
     report = {
+        'save_time': datetime.now().isoformat(),
         'unique_ips': list(ips),
         'unique_domains': list(domains)
     }
+    
     with open(out_file, 'w') as f:
         json.dump(report, f, indent=4)
         
-def run(in_file, out_file='report.json'):
-    # TODO: Call API to check for suspicious IPs
+def analyze_file(in_file, out_file='report.json'):
+    logger.info(f"Loading pcap file {in_file}")  # debugging
     cap = load_pcap(in_file)
+    logger.info(f"Loaded pcap file {in_file}")  # debuggingrun(in_file, out_file)
     
+    return run(cap, out_file=out_file)
+        
+def run(cap, out_file='report.json'):   
+    
+    logger.info(f"Extracting IPs and domains")  # debugging
     ips = extract_ips(cap)
+    logger.info(f"Extracted {len(ips)} unique IPs")  # debugging
+    
+    logger.info(f"Extracting Domains")  # debugging
     domains = extract_domains(cap)
+    logger.info(f"Extracted {len(domains)} unique domains")  # debugging
+    
+    # TODO: store IP info in the report (save_report())
+    ip_info = [get_ip_info(ip_address=addr) for addr in ips]
+    
+    # END FILE CAPTURE OBJ
+    logger.info(f"Closing pcap object")  # debugging
+    cap.close()
+    logger.info(f"Closed pcap object")  # debugging
     
     save_report(ips, domains, out_file)
-    
-    print(f"Found {len(ips)} unique IPs and {len(domains)} unique domains.")
+    print(f"Report saved to {out_file}")
+    logger.info(f"Report saved to {out_file}")
