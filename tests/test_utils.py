@@ -41,7 +41,6 @@ import pytest
 from pcap_ioc import utils
 
 
-
 class DummyPkt:
     """
     A dummy packet class for testing purposes, simulating network packet layers.
@@ -58,7 +57,7 @@ class DummyPkt:
     Methods:
         __contains__(item): Returns True if 'item' is "DNS" and the packet has a DNS layer.
     """
-    
+
     def __init__(self, src=None, dst=None, dns_query=None, has_ip=True, has_dns=False):
         """
         Initialize the mock packet object with optional IP and DNS layers.
@@ -98,7 +97,7 @@ def test_get_ip_info():
     Returns:
         None
     """
-    
+
     ip = "1.1.1.1"
     result = utils.get_ip_info(ip)
     assert isinstance(result, dict)
@@ -115,7 +114,7 @@ def test_extract_ips_basic():
     - Packets without IP information (e.g., has_ip=False) are ignored.
     - The result is a set containing all unique IP addresses found.
     """
-    
+
     pkts = [
         DummyPkt(src="1.1.1.1", dst="2.2.2.2"),
         DummyPkt(src="3.3.3.3", dst="4.4.4.4"),
@@ -132,7 +131,7 @@ def test_extract_domains_basic():
     It verifies that the function returns a set of all unique domain names found in the DNS queries,
     ignoring packets without DNS information.
     """
-    
+
     pkts = [
         DummyPkt(has_ip=True, has_dns=True, dns_query="example.com"),
         DummyPkt(has_ip=True, has_dns=True, dns_query="test.com"),
@@ -147,7 +146,7 @@ def test_extract_domains_handles_attribute_error():
     Test that extract_domains returns an empty set when a packet's DNS query name attribute is missing,
     ensuring it gracefully handles AttributeError exceptions.
     """
-    
+
     pkt = DummyPkt(has_ip=True, has_dns=True)
     del pkt.dns.qry_name  # Remove attribute to trigger AttributeError
     pkts = [pkt]
@@ -160,7 +159,7 @@ def test_save_report(tmp_path):
     Test the `save_report` function to ensure it correctly writes the provided sets of IPs and domains
     to a JSON file. The test verifies that the output file contains the expected unique IPs and domains.
     """
-    
+
     ips = {"1.1.1.1", "2.2.2.2"}
     domains = {"example.com"}
     out_file = tmp_path / "report.json"
@@ -175,7 +174,7 @@ def test_load_pcap_no_file():
     """
     Test that utils.load_pcap raises a FileNotFoundError when attempting to load a non-existent pcap file.
     """
-    
+
     with pytest.raises(FileNotFoundError):
         utils.load_pcap("nonexistent.pcap")
 
@@ -190,7 +189,7 @@ def test_run_calls_all_functions(mock_save_report, mock_load_pcap):
     - `save_report` is called once with the expected arguments, including source IP, destination IP, DNS query, and output file name.
     - The arguments passed to `save_report` contain the expected values extracted from the fake packet data.
     """
-    
+
     fake_cap = [
         DummyPkt(
             src="1.1.1.1", dst="2.2.2.2", has_ip=True, has_dns=True, dns_query="abc.com"
@@ -213,6 +212,6 @@ def test_load_pcap_calls_pyshark(mock_file_capture):
     Test that the `utils.load_pcap` function calls the `pyshark.FileCapture` (mocked as `mock_file_capture`)
     with the correct file path argument.
     """
-    
+
     utils.load_pcap("somefile.pcap")
     mock_file_capture.assert_called_once_with("somefile.pcap")

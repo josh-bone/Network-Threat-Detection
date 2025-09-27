@@ -9,6 +9,7 @@ Main functionalities include:
 - Assembling and saving analysis reports in JSON format.
 Logging is used throughout for debugging and informational purposes.
 """
+
 # Standard imports
 from datetime import datetime
 import json
@@ -187,7 +188,7 @@ def save_report(report: dict, out_file: str | os.PathLike) -> None:
     """
 
     try:
-        with open(out_file, "w", encoding='utf-8') as f:
+        with open(out_file, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=4)
     except IOError as e:
         print(f"Error writing to file {out_file}: {e}")
