@@ -9,15 +9,16 @@ Main functionalities include:
 - Assembling and saving analysis reports in JSON format.
 Logging is used throughout for debugging and informational purposes.
 """
-
-import pyshark
+# Standard imports
+from datetime import datetime
 import json
-import argparse
-import requests
 import os
 import sys
 import logging
-from datetime import datetime
+
+# Third-party imports
+import pyshark
+import requests
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -186,7 +187,7 @@ def save_report(report: dict, out_file: str | os.PathLike) -> None:
     """
 
     try:
-        with open(out_file, "w") as f:
+        with open(out_file, "w", encoding='utf-8') as f:
             json.dump(report, f, indent=4)
     except IOError as e:
         print(f"Error writing to file {out_file}: {e}")

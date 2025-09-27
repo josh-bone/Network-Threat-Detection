@@ -2,10 +2,13 @@
 Command-line interface for the pcap_ioc tool.
 """
 
+# Standard imports
 import argparse
 import os
-from pcap_ioc.utils import capture_packets, analyze_file
 import logging
+
+# Local imports
+from pcap_ioc.utils import capture_packets, analyze_file
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
