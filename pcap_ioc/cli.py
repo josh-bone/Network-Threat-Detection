@@ -59,8 +59,7 @@ def main():
         pcap_file = capture._output_file
         print(f"Capture saved to {pcap_file}")  # debugging
         logger.info(f"Capture saved to {pcap_file}")
-
-    if args.command == "analyze":
+    elif args.command == "analyze":
         assert os.path.exists(
             pcap_file
         ), f"PCAP file {pcap_file} does not exist"  # At this point the file must exist
