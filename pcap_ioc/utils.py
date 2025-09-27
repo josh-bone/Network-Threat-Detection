@@ -109,7 +109,7 @@ def extract_ips(cap):
     Returns:
         set: A set of unique IP addresses (as strings) found in the capture.
     """
-    
+
     ips = set()
     for i, pkt in enumerate(cap):
         logger.info(f"Extracting IPs from packet {i}/{len([p for p in cap])}")
@@ -134,7 +134,7 @@ def extract_domains(cap):
     Returns:
         set: A set of unique domain names (as strings) extracted from DNS query packets.
     """
-    
+
     domains = set()
     for i, pkt in enumerate(cap):
         logger.info(f"Extracting domains from packet {i}/{len([p for p in cap])}")
@@ -145,6 +145,7 @@ def extract_domains(cap):
             except AttributeError:
                 continue
     return domains
+
 
 def assemble_report(ips, domains, ip_info=None) -> dict:
     """
@@ -160,7 +161,7 @@ def assemble_report(ips, domains, ip_info=None) -> dict:
             - "unique_domains": List of unique domain names.
             - "ip_info": (Optional) Additional IP information if provided.
     """
-    
+
     report = {
         "save_time": datetime.now().isoformat(),
         "unique_ips": list(ips),
@@ -169,10 +170,11 @@ def assemble_report(ips, domains, ip_info=None) -> dict:
 
     if ip_info is not None:
         report["ip_info"] = ip_info
-        
+
     return report
 
-def save_report(report:dict, out_file:str|os.PathLike) -> None:
+
+def save_report(report: dict, out_file: str | os.PathLike) -> None:
     """
     Saves the given report as a JSON file.
     Args:
@@ -188,11 +190,12 @@ def save_report(report:dict, out_file:str|os.PathLike) -> None:
             json.dump(report, f, indent=4)
     except IOError as e:
         print(f"Error writing to file {out_file}: {e}")
-    except TypeError as e: # Catch JSON serialization errors
+    except TypeError as e:  # Catch JSON serialization errors
         print(f"Error serializing report to JSON: {e}")
-    except Exception as e: # Catch other potential file-related errors
+    except Exception as e:  # Catch other potential file-related errors
         print(f"An unexpected error occurred during file operation: {e}")
         raise e
+
 
 def analyze_file(in_file, out_file=None) -> dict:
     """
@@ -206,7 +209,7 @@ def analyze_file(in_file, out_file=None) -> dict:
         FileNotFoundError: If the input file does not exist.
         Exception: If an error occurs during loading or analysis of the pcap file.
     """
-    
+
     logger.info(f"Loading pcap file {in_file}")  # debugging
     cap = load_pcap(in_file)
     logger.info(f"Loaded pcap file {in_file}")  # debugging
@@ -224,7 +227,6 @@ def analyze(cap, out_file=None) -> dict:
     Returns:
         dict: The assembled report containing extracted IPs, domains, and IP information.
     """
-    
 
     logger.info(f"Extracting IPs and domains")  # debugging
     ips = extract_ips(cap)
@@ -246,5 +248,5 @@ def analyze(cap, out_file=None) -> dict:
         save_report(report, out_file=out_file)
         print(f"Report saved to {out_file}")
         logger.info(f"Report saved to {out_file}")
-        
+
     return report
