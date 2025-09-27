@@ -36,6 +36,7 @@ from unittest import mock
 
 # Third-party imports
 import pytest
+from pyshark import FileCapture, LiveCapture
 
 # Local imports
 from pcap_ioc import utils
@@ -170,6 +171,14 @@ def test_save_report(tmp_path):
     assert set(data["unique_ips"]) == ips
     assert set(data["unique_domains"]) == domains
 
+
+def test_capture_packets():
+    """
+    Test the capture_packets function to ensure it returns a LiveCapture instance and can be properly closed.
+    """
+    cap = utils.capture_packets()
+    assert type(cap) == LiveCapture
+    cap.close()
 
 def test_load_pcap_no_file():
     """
