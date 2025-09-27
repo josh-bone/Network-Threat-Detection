@@ -64,9 +64,7 @@ def capture_packets(
     assert duration is not None and duration > 0, "Duration must be a positive integer"
 
     logger.info(
-        "Starting live capture on interface %s for %d seconds",
-        interface,
-        duration
+        "Starting live capture on interface %s for %d seconds", interface, duration
     )
     try:
         capture = pyshark.LiveCapture(
