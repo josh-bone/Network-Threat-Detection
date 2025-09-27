@@ -48,8 +48,8 @@ def get_ip_info(ip_address: str) -> dict | Exception:
 
 
 def capture_packets(
-    output_filename: str, interface="en0", bpf_filter=None, duration=10
-):
+    output_filename: str=None, interface="en0", bpf_filter=None, duration=10
+) -> pyshark.capture.live_capture.LiveCapture:
     """Takes a live capture with PyShark
 
     Args:

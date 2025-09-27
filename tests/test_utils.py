@@ -187,7 +187,11 @@ def test_capture_packets():
     """
     Test the capture_packets function to ensure it returns a LiveCapture instance and can be properly closed.
     """
-    cap = utils.capture_packets(None, duration=1)
+    
+    with pytest.raises(ValueError):
+        _ = utils.capture_packets(output_filename=None, duration=-1)  # Invalid interface should raise ValueError
+    
+    cap = utils.capture_packets(output_filename=None, duration=1)
     assert type(cap) == LiveCapture
     cap.close()
 
