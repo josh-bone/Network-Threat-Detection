@@ -128,8 +128,8 @@ def test_extract_ips_basic():
     random_ips = [random_ip() for _ in range(4)]
 
     pkts = [
-        DummyPkt(src=random_ip[0], dst=random_ip[1]),
-        DummyPkt(src=random_ip[2], dst=random_ip[3]),
+        DummyPkt(src=random_ips[0], dst=random_ips[1]),
+        DummyPkt(src=random_ips[2], dst=random_ips[3]),
         DummyPkt(has_ip=False),  # Should be skipped
     ]
     result = utils.extract_ips(pkts)
@@ -187,7 +187,7 @@ def test_capture_packets():
     """
     Test the capture_packets function to ensure it returns a LiveCapture instance and can be properly closed.
     """
-    cap = utils.capture_packets()
+    cap = utils.capture_packets(None, duration=1)
     assert type(cap) == LiveCapture
     cap.close()
 
