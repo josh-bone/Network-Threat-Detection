@@ -6,9 +6,11 @@ Command-line interface for the parse-pcap tool.
 import argparse
 import os
 import logging
+import json
 
 # Local imports
 from parse_pcap.utils import capture_packets, analyze_file
+from parse_pcap.visualization import visualize_all
 
 logger = logging.getLogger(__name__)
 
@@ -118,8 +120,6 @@ def main():
             args.pcap_file, out_file=args.report_file, rule_file=args.rules
         )
         if args.visualize:
-            from parse_pcap.visualization import visualize_all
-
             visualize_all(report)
     elif args.command == "visualize":
         assert (
@@ -128,9 +128,6 @@ def main():
         assert os.path.exists(
             args.report_file
         ), f"Report file {args.report_file} does not exist"
-
-        from parse_pcap.visualization import visualize_all
-        import json
 
         # Load the report from the specified JSON file
         try:
@@ -142,5 +139,5 @@ def main():
         except FileNotFoundError as e:
             logger.error("Report file not found: %s:\n%s", args.report_file, e)
             return
-        
+
         visualize_all(report)

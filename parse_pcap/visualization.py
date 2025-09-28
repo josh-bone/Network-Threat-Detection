@@ -8,7 +8,9 @@ Functions:
     show_violations(packets, rules):
         Prints packets that violate specified rules, such as blacklisted IPs or cities.
 """
+
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -19,7 +21,7 @@ def visualize_all(report):
         report (dict): The report data containing information about violations to be visualized.
     Returns:
         None
-    """    
+    """
     show_violations(report)
 
 
@@ -35,7 +37,7 @@ def show_violations(report):
     Returns:
         None
     """
-    
+
     print("\n=== Rule Violations ===")
 
     if "blacklisted_cities" in report and len(report["blacklisted_cities"]) > 0:
