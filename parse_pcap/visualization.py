@@ -34,4 +34,7 @@ def show_violations(report):
         for ip in report["blacklisted_ips"]:
             print(f"  {ip}")
 
-    # TODO: Implement more rule violation checks here
+    if "blacklisted_domains" in report and len(report["blacklisted_domains"]) > 0:
+        print(f"\nBlacklisted Domains found:")
+        for domain in report["blacklisted_domains"]:
+            print(f"  {domain}")
