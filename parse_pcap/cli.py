@@ -12,6 +12,7 @@ from parse_pcap.utils import capture_packets, analyze_file
 
 logger = logging.getLogger(__name__)
 
+
 def main():
     """
     Main entry point for the PCAP IOC Analyzer CLI.
@@ -38,7 +39,9 @@ def main():
     print("PCAP IOC Analyzer v0.1")  # Mostly for debugging :)
     parser = argparse.ArgumentParser(description="Analyze PCAPs for IOCs")
     parser.add_argument(
-        "command", choices=["capture", "analyze", "visualize"], help="Command to execute"
+        "command",
+        choices=["capture", "analyze", "visualize"],
+        help="Command to execute",
     )
     parser.add_argument(
         "-p",
@@ -75,26 +78,33 @@ def main():
     parser.add_argument(
         "-v", "--visualize", action="store_true", help="Visualize results in terminal"
     )
-    parser.add_argument('-l', '--log_level', type=str, default='ERROR',
-                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                        help='Set the logging level (default: ERROR)')
+    parser.add_argument(
+        "-l",
+        "--log_level",
+        type=str,
+        default="ERROR",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
+        help="Set the logging level (default: ERROR)",
+    )
     args = parser.parse_args()
-    
-    if args.log_level == 'DEBUG':
+
+    if args.log_level == "DEBUG":
         logging.basicConfig(level=logging.DEBUG)
-    elif args.log_level == 'INFO':
+    elif args.log_level == "INFO":
         logging.basicConfig(level=logging.INFO)
-    elif args.log_level == 'WARNING':
+    elif args.log_level == "WARNING":
         logging.basicConfig(level=logging.WARNING)
-    elif args.log_level == 'ERROR':
+    elif args.log_level == "ERROR":
         logging.basicConfig(level=logging.ERROR)
-    elif args.log_level == 'CRITICAL':
+    elif args.log_level == "CRITICAL":
         logging.basicConfig(level=logging.CRITICAL)
-    
+
     logger.info("args.report_file: %s", args.report_file)  # debugging
     logger.info("args.pcap_file: %s", args.pcap_file)  # debugging
 
-    if args.command == "capture" or (args.pcap_file is None and args.command == "analyze"):
+    if args.command == "capture" or (
+        args.pcap_file is None and args.command == "analyze"
+    ):
         _ = capture_packets(
             output_filename=args.pcap_file,
             interface=args.capture_interface,
@@ -105,19 +115,24 @@ def main():
             args.pcap_file
         ), f"PCAP file {args.pcap_file} does not exist"  # At this point the file must exist
         logger.info("Analyzing %s with rules in %s", args.pcap_file, args.rules)
-        report = analyze_file(args.pcap_file, out_file=args.report_file, rule_file=args.rules)
+        report = analyze_file(
+            args.pcap_file, out_file=args.report_file, rule_file=args.rules
+        )
         if args.visualize:
             from parse_pcap.visualization import visualize_all
+
             visualize_all(report)
     elif args.command == "visualize":
-        assert args.report_file is not None, "Please specify a report file with --report_file"
+        assert (
+            args.report_file is not None
+        ), "Please specify a report file with --report_file"
         assert os.path.exists(
             args.report_file
         ), f"Report file {args.report_file} does not exist"
-        
+
         from parse_pcap.visualization import visualize_all
         import json
-        
+
         # Load the report from the specified JSON file
         try:
             with open(args.report_file, "r", encoding="utf-8") as f:
@@ -127,9 +142,9 @@ def main():
             return
         except FileNotFoundError as e:
             logger.error("Report file not found: %s:\n%s", args.report_file, e)
-            return 
+            return
         except Exception as e:
             logger.error("An error occurred while loading the report: %s", e)
             return
-        
+
         visualize_all(report)

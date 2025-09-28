@@ -13,9 +13,10 @@ Functions:
 def visualize_all(report):
     show_violations(report)
 
+
 def show_violations(report):
     print("\n=== Rule Violations ===")
-    
+
     if "blacklisted_cities" in report and len(report["blacklisted_cities"]) > 0:
         print(f"IP addresses from blacklisted cities")
         for city in report["blacklisted_cities"]:
@@ -28,7 +29,7 @@ def show_violations(report):
                 ]
             )
             print(f"  {city}\t{count}")
-            
+
     if "blacklisted_ips" in report and len(report["blacklisted_ips"]) > 0:
         print(f"\nBlacklisted IPs found:")
         for ip in report["blacklisted_ips"]:
