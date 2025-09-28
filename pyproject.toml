@@ -1,6 +1,6 @@
 [project]
 name = "parse-pcap"
-version = "0.2.0"
+version = "0.2.1"
 description = "A Python package for extracting indicators of compromise (IOCs) from PCAP files."
 authors = [
     { name = "Joshua Bone", email = "jbone.data@gmail.com" }
