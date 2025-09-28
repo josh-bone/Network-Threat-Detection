@@ -134,7 +134,9 @@ def test_extract_ips_basic():
         DummyPkt(has_ip=False),  # Should be skipped
     ]
     result = utils.extract_ips(pkts)
-    assert result == {addr:len([i for i in random_ips if i == addr]) for addr in random_ips}
+    assert result == {
+        addr: len([i for i in random_ips if i == addr]) for addr in random_ips
+    }
 
 
 def test_extract_domains_basic():
@@ -151,7 +153,7 @@ def test_extract_domains_basic():
         DummyPkt(has_ip=True, has_dns=False),
     ]
     result = utils.extract_domains(pkts)
-    assert result == {"example.com":1, "test.com":1}
+    assert result == {"example.com": 1, "test.com": 1}
 
 
 def test_extract_domains_handles_attribute_error():
