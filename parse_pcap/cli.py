@@ -11,8 +11,6 @@ import logging
 from parse_pcap.utils import capture_packets, analyze_file
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
-
 
 def main():
     """
@@ -77,7 +75,21 @@ def main():
     parser.add_argument(
         "-v", "--visualize", action="store_true", help="Visualize results in terminal"
     )
+    parser.add_argument('-l', '--log_level', type=str, default='ERROR',
+                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+                        help='Set the logging level (default: ERROR)')
     args = parser.parse_args()
+    
+    if args.log_level == 'DEBUG':
+        logging.basicConfig(level=logging.DEBUG)
+    elif args.log_level == 'INFO':
+        logging.basicConfig(level=logging.INFO)
+    elif args.log_level == 'WARNING':
+        logging.basicConfig(level=logging.WARNING)
+    elif args.log_level == 'ERROR':
+        logging.basicConfig(level=logging.ERROR)
+    elif args.log_level == 'CRITICAL':
+        logging.basicConfig(level=logging.CRITICAL)
     
     logger.info("args.report_file: %s", args.report_file)  # debugging
     logger.info("args.pcap_file: %s", args.pcap_file)  # debugging

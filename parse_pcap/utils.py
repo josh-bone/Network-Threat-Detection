@@ -22,7 +22,6 @@ import pyshark
 import requests
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 
 def get_ip_info(ip_address: str) -> dict | Exception:
