@@ -219,7 +219,11 @@ def test_analyze_file(mock_save_report, mock_load_pcap):
 
     with mock.patch("parse_pcap.utils.analyze") as mock_analyze:
         mock_analyze.return_value = {"result": "ok"}
-        result = utils.analyze_file("input.pcap", out_file="output.json", rule_file="rules.json")
+        result = utils.analyze_file(
+            "input.pcap", out_file="output.json", rule_file="rules.json"
+        )
         mock_load_pcap.assert_called_once_with("input.pcap")
-        mock_analyze.assert_called_once_with(dummy_cap, out_file="output.json", rule_file="rules.json")
+        mock_analyze.assert_called_once_with(
+            dummy_cap, out_file="output.json", rule_file="rules.json"
+        )
         assert result == {"result": "ok"}
