@@ -217,6 +217,7 @@ def load_rules(rule_file: str) -> dict:
     Raises:
         FileNotFoundError: If the specified rule_file does not exist.
         ValueError: If the file format is unsupported or if there are parsing errors.
+        NotImplementedError: If YAML support is attempted.
     """
     if not os.path.exists(rule_file):
         raise FileNotFoundError(f"Rules file {rule_file} does not exist")
