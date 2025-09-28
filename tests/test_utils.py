@@ -134,7 +134,7 @@ def test_extract_ips_basic():
         DummyPkt(has_ip=False),  # Should be skipped
     ]
     result = utils.extract_ips(pkts)
-    assert result == set(random_ips)
+    assert result == {addr:len([i for i in random_ips if i == addr]) for addr in random_ips}
 
 
 def test_extract_domains_basic():
@@ -151,7 +151,7 @@ def test_extract_domains_basic():
         DummyPkt(has_ip=True, has_dns=False),
     ]
     result = utils.extract_domains(pkts)
-    assert result == {"example.com", "test.com"}
+    assert result == {"example.com":1, "test.com":1}
 
 
 def test_extract_domains_handles_attribute_error():
@@ -164,15 +164,7 @@ def test_extract_domains_handles_attribute_error():
     del pkt.dns.qry_name  # Remove attribute to trigger AttributeError
     pkts = [pkt]
     result = utils.extract_domains(pkts)
-    assert result == set()
-
-
-def test_save_report(tmp_path):
-    """
-    Test the `save_report` function to ensure it correctly writes the provided sets of IPs and domains
-    to a JSON file. The test verifies that the output file contains the expected unique IPs and domains.
-    """
-    pass
+    assert result == {}
 
 
 def test_capture_packets():
