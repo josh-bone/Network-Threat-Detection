@@ -28,13 +28,13 @@ pip install -i https://test.pypi.org/simple/ \
 **Analyze an existing pcap file:**
 
 ```bash
-parse-pcap analyze -p /path/to/packet_capture.pcap -o /path/to/results.json
+parse_pcap analyze -p /path/to/packet_capture.pcap -o /path/to/results.json
 ```
 
 **Capture live network traffic:**
 
 ```bash
-parse-pcap capture -o /path/to/capture.pcapng -i capture_interface -t 2
+parse_pcap capture -o /path/to/capture.pcapng -i capture_interface -t 2
 ```
 
 ### Python Library
