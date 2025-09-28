@@ -1,37 +1,24 @@
 """
 Unit tests for the utility functions in the `parse_pcap.utils` module.
 
-This test suite covers:
-- Extraction of IP addresses and domain names from packet-like objects.
-- Handling of packets with missing or malformed attributes.
-- Saving and loading of analysis reports in JSON format.
-- Error handling for missing PCAP files.
-- Integration of main analysis workflow, ensuring all core functions are called.
-- Interaction with external dependencies such as `pyshark.FileCapture`.
-
 Classes:
     DummyPkt: A mock packet class used to simulate network packets with optional IP and DNS layers.
 
 Test Functions:
-    test_get_ip_info: Tests retrieval of IP information.
-    test_extract_ips_basic: Tests extraction of IP addresses from packets.
-    test_extract_domains_basic: Tests extraction of domain names from packets.
-    test_extract_domains_handles_attribute_error: Ensures robustness when DNS query attribute is missing.
-    test_save_report: Tests saving of analysis results to a JSON file.
-    test_load_pcap_no_file: Ensures FileNotFoundError is raised for missing PCAP files.
-    test_run_calls_all_functions: Verifies the main analysis function calls all necessary utilities.
-    test_capture_packets: Placeholder for future packet capture tests.
-    test_load_pcap_calls_pyshark: Ensures PCAP loading uses pyshark's FileCapture.
+    test_get_ip_info(): Tests the retrieval of geolocation and other info for a given IP address.
+    test_extract_ips_basic(): Tests basic extraction of IP addresses from packets.
+    test_extract_domains_basic(): Tests basic extraction of domain names from packets.
+    test_extract_domains_handles_attribute_error(): Ensures graceful handling of AttributeError in domain extraction.
+    test_capture_packets(): Tests input validation in the packet capture function.
+    test_load_pcap_no_file(): Ensures proper error is raised when loading a non-existent PCAP file.
 
 Dependencies:
     - pytest
     - unittest.mock
-    - json
     - parse_pcap.utils
 """
 
 # Standard imports
-import json
 from unittest import mock
 import random
 
