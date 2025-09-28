@@ -126,18 +126,25 @@ def extract_ips(cap) -> set:
         set: A set of unique IP addresses (as strings) found in the capture.
     """
 
-    ips = set()
+    ip_counts = {}
     for i, pkt in enumerate(cap):
         logger.info("Extracting IPs from packet %d/%d", i, len(list(cap)))
         try:
             src = pkt.ip.src
             dst = pkt.ip.dst
-            ips.add(src)
-            ips.add(dst)
+            if src in ip_counts:
+                ip_counts[src] += 1
+            else:
+                ip_counts[src] = 1
+            if dst in ip_counts:
+                ip_counts[dst] += 1
+            else:
+                ip_counts[dst] = 1
         except AttributeError:
             logger.info("Packet %d has no IP layer, skipping", i)
             continue  # Packet has no IP layer
-    return ips
+
+    return ip_counts
 
 
 def extract_domains(cap) -> set:
@@ -150,14 +157,16 @@ def extract_domains(cap) -> set:
     Returns:
         set: A set of unique domain names (as strings) extracted from DNS query packets.
     """
-
-    domains = set()
+    domains = {}
     for i, pkt in enumerate(cap):
         logger.info("Extracting domains from packet %d/%d", i, len(list(cap)))
         if "DNS" in pkt:
             try:
                 query = pkt.dns.qry_name
-                domains.add(query)
+                if query in domains:
+                    domains[query] += 1
+                else:
+                    domains[query] = 1
             except AttributeError:
                 continue
     return domains
@@ -178,25 +187,30 @@ def assemble_report(ips, domains, ip_info=None, rules=None) -> dict:
             - "unique_domains": List of unique domain names.
             - "ip_info": (Optional) Additional IP information if provided.
     """
+    # TODO: include protocol of packets in the report somehow
+    if rules == {}:
+        rules = None
 
     report = {
         "save_time": datetime.now().isoformat(),
-        "unique_ips": list(ips),
-        "unique_domains": list(domains),
+        "unique_ips": list(set(ips.keys())),
+        "unique_domains": list(set(domains.keys())),
     }
 
     if ip_info is not None:
         report["ip_info"] = ip_info
 
     # TODO: Allow more flexible labels - e.g. wildcard matching on domains (*.example.com), CIDR for IPs (255.*.*.*), etc.
-    if rules is not None:
+    if rules is not None and isinstance(rules, dict):
         if "ip_blacklist" in rules:
             report["blacklisted_ips"] = [
-                ip for ip in ips if ip in rules["ip_blacklist"]
+                ip for ip in set(ips.keys()) if ip in rules["ip_blacklist"]
             ]
         if "domain_blacklist" in rules:
             report["blacklisted_domains"] = [
-                domain for domain in domains if domain in rules["domain_blacklist"]
+                domain
+                for domain in set(domains.keys())
+                if domain in rules["domain_blacklist"]
             ]
         if "city_blacklist" in rules:
             report["blacklisted_cities"] = []
@@ -220,6 +234,9 @@ def load_rules(rule_file: str) -> dict:
         ValueError: If the file format is unsupported or if there are parsing errors.
         NotImplementedError: If YAML support is attempted.
     """
+    if rule_file is None:
+        return {}
+    rule_file = os.path.abspath(rule_file)
     if not os.path.exists(rule_file):
         raise FileNotFoundError(f"Rules file {rule_file} does not exist")
 
@@ -293,16 +310,18 @@ def analyze(cap, out_file: str = None, rule_file: str = None) -> dict:
     """
 
     logger.info("Extracting IPs and domains")  # debugging
-    ips = extract_ips(cap)
-    logger.info("Extracted %d unique IPs", len(ips))  # debugging
+    ip_counts = extract_ips(cap)
+    logger.info("Extracted %d unique IPs", len(set(ip_counts)))  # debugging
 
     logger.info("Extracting Domains")  # debugging
-    domains = extract_domains(cap)
-    logger.info("Extracted %d unique domains", len(domains))  # debugging
+    domain_counts = extract_domains(cap)
+    logger.info("Extracted %d unique domains", len(set(domain_counts)))  # debugging
 
-    ip_info = [get_ip_info(ip_address=addr) for addr in ips]
+    ip_info = [get_ip_info(ip_address=addr) for addr in set(ip_counts)]
 
-    report = assemble_report(ips, domains, ip_info=ip_info, rules=load_rules(rule_file))
+    report = assemble_report(
+        ip_counts, domain_counts, ip_info=ip_info, rules=load_rules(rule_file)
+    )
 
     if out_file is not None:
         save_report(report, out_file=out_file)

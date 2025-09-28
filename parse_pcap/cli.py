@@ -40,23 +40,22 @@ def main():
     print("PCAP IOC Analyzer v0.1")  # Mostly for debugging :)
     parser = argparse.ArgumentParser(description="Analyze PCAPs for IOCs")
     parser.add_argument(
-        "command", choices=["capture", "analyze"], help="Command to execute"
+        "command", choices=["capture", "analyze", "visualize"], help="Command to execute"
     )
     parser.add_argument(
         "-p",
         "--pcap_file",
         help="Path to the PCAP file to analyze. If unspecified, a live capture will be taken",
+        type=os.path.abspath,
         required=False,
     )
     parser.add_argument(
         "-r", "--rules", help="Path to IOC rules file (JSON/YAML)", required=False
     )
     parser.add_argument(
-        "-o",
-        "--out_file",
+        "--report_file",
         required=False,
-        type=str,
-        default="report.json",
+        type=os.path.abspath,
         help="Output report file path",
     )
     parser.add_argument(
@@ -75,23 +74,50 @@ def main():
         default=10,
         help="Duration of capture in seconds (default: 10)",
     )
+    parser.add_argument(
+        "-v", "--visualize", action="store_true", help="Visualize results in terminal"
+    )
     args = parser.parse_args()
+    
+    logger.info("args.report_file: %s", args.report_file)  # debugging
+    logger.info("args.pcap_file: %s", args.pcap_file)  # debugging
 
-    pcap_file = args.pcap_file
-
-    if args.command == "capture" or (pcap_file is None and args.command == "analyze"):
+    if args.command == "capture" or (args.pcap_file is None and args.command == "analyze"):
         _ = capture_packets(
-            output_filename=args.out_file,
+            output_filename=args.pcap_file,
             interface=args.capture_interface,
             duration=args.capture_duration,
         )
     elif args.command == "analyze":
         assert os.path.exists(
-            pcap_file
-        ), f"PCAP file {pcap_file} does not exist"  # At this point the file must exist
-        logger.info("Analyzing %s with rules in %s", pcap_file, args.rules)
-        analyze_file(pcap_file, out_file=args.out_file, rule_file=args.rules)
-
+            args.pcap_file
+        ), f"PCAP file {args.pcap_file} does not exist"  # At this point the file must exist
+        logger.info("Analyzing %s with rules in %s", args.pcap_file, args.rules)
+        report = analyze_file(args.pcap_file, out_file=args.report_file, rule_file=args.rules)
+        if args.visualize:
+            from parse_pcap.visualization import visualize_all
+            visualize_all(report)
     elif args.command == "visualize":
-        # TODO: Implement visualization functionality using something like rich or textual
-        raise NotImplementedError("Visualize command not yet implemented")
+        assert args.report_file is not None, "Please specify a report file with --report_file"
+        assert os.path.exists(
+            args.report_file
+        ), f"Report file {args.report_file} does not exist"
+        
+        from parse_pcap.visualization import visualize_all
+        import json
+        
+        # Load the report from the specified JSON file
+        try:
+            with open(args.report_file, "r", encoding="utf-8") as f:
+                report = json.load(f)
+        except json.JSONDecodeError as e:
+            logger.error("Failed to parse report file %s:\n%s", args.report_file, e)
+            return
+        except FileNotFoundError as e:
+            logger.error("Report file not found: %s:\n%s", args.report_file, e)
+            return 
+        except Exception as e:
+            logger.error("An error occurred while loading the report: %s", e)
+            return
+        
+        visualize_all(report)
