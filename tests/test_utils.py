@@ -208,24 +208,18 @@ def test_load_pcap_no_file():
 @mock.patch("parse_pcap.utils.save_report")
 def test_analyze_file(mock_save_report, mock_load_pcap):
     """
-    Test that the `analyze` function in the `utils` module correctly calls the `load_pcap` and `save_report` functions.
-    This test verifies that:
-    - `load_pcap` is called once with the provided pcap file path.
-    - `save_report` is called once with the expected arguments, including source IP, destination IP, DNS query, and output file name.
-    - The arguments passed to `save_report` contain the expected values extracted from the fake packet data.
+    Test the analyze_file function to ensure it orchestrates the workflow correctly:
+    - It should call load_pcap with the input file.
+    - It should call analyze with the returned capture object.
+    - It should pass out_file and rule_file to analyze.
+    - It should return the result from analyze.
     """
+    dummy_cap = mock.Mock()
+    mock_load_pcap.return_value = dummy_cap
 
-    fake_cap = [
-        DummyPkt(
-            src="1.1.1.1", dst="2.2.2.2", has_ip=True, has_dns=True, dns_query="abc.com"
-        )
-    ]
-    mock_load_pcap.return_value = fake_cap
-    utils.analyze(fake_cap, out_file="output.json")
-    mock_load_pcap.assert_called_once_with("fakefile.pcap")
-    mock_save_report.assert_called_once()
-    args, kwargs = mock_save_report.call_args
-    assert "1.1.1.1" in args[0]["unique_ips"]
-    assert "2.2.2.2" in args[0]["unique_ips"]
-    assert "abc.com" in args[0]["unique_domains"]
-    assert kwargs["out_file"] == "output.json"
+    with mock.patch("parse_pcap.utils.analyze") as mock_analyze:
+        mock_analyze.return_value = {"result": "ok"}
+        result = utils.analyze_file("input.pcap", out_file="output.json", rule_file="rules.json")
+        mock_load_pcap.assert_called_once_with("input.pcap")
+        mock_analyze.assert_called_once_with(dummy_cap, out_file="output.json", rule_file="rules.json")
+        assert result == {"result": "ok"}
