@@ -5,7 +5,7 @@
 *.pcapng
 *.temp/
 *.temp/*
-test/captures/
+test/captures
 test/captures/*
 test/*report.json
 
