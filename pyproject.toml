@@ -1,6 +1,6 @@
 [project]
 name = "pcap_ioc"
-version = "0.1.4"
+version = "0.1.5"
 description = "A Python package for extracting indicators of compromise (IOCs) from PCAP files."
 authors = [
     { name = "Joshua Bone", email = "jbone.data@gmail.com" }
