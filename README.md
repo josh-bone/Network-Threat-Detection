@@ -1,6 +1,6 @@
-# IOC Detector
+# Parse_pcap
 
-IOC Detector is a security tool designed to analyze packet capture files (pcap) for indicators of compromise (IOCs). It helps security professionals quickly identify suspicious activity within network traffic.
+Parse_pcap is a security tool designed to analyze packet capture files (pcap) for indicators of compromise (IOCs). It helps security professionals quickly identify suspicious activity within network traffic.
 
 ## Features
 
@@ -11,12 +11,10 @@ IOC Detector is a security tool designed to analyze packet capture files (pcap) 
 
 ## Installation
 
-Currently, IOC Detector is available on TestPyPI. To install, run:
+This is published on PyPi, so you can run the following to install:
 
 ```bash
-pip install -i https://test.pypi.org/simple/ \
-    --extra-index-url https://pypi.org/simple \
-    parse_pcap==0.1.5
+pip install parse-pcap
 ```
 
 > **Note:** The package will be available on PyPI soon.
@@ -39,7 +37,7 @@ parse_pcap capture -o /path/to/capture.pcapng -i capture_interface -t 2
 
 ### Python Library
 
-You can also use IOC Detector as a Python library:
+You can also use Parse_pcap as a Python library:
 
 ```python
 from parse_pcap.utils import load_pcap, analyze
@@ -47,5 +45,3 @@ from parse_pcap.utils import load_pcap, analyze
 cap = load_pcap(in_file)
 results = analyze(cap, out_file=out_file)
 ```
-
-Refer to the documentation for more advanced usage and options.
