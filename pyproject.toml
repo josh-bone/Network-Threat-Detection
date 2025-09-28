@@ -1,5 +1,5 @@
 [project]
-name = "pcap_ioc"
+name = "parse-pcap"
 version = "0.1.5"
 description = "A Python package for extracting indicators of compromise (IOCs) from PCAP files."
 authors = [
@@ -19,7 +19,7 @@ test = [
 ]
 
 [project.scripts]
-pcap-ioc = "pcap_ioc.cli:main"
+parse_pcap = "parse_pcap.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/josh-bone/Network-Threat-Detection"

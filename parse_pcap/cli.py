@@ -1,5 +1,5 @@
 """
-Command-line interface for the pcap_ioc tool.
+Command-line interface for the parse-pcap tool.
 """
 
 # Standard imports
@@ -8,7 +8,7 @@ import os
 import logging
 
 # Local imports
-from pcap_ioc.utils import capture_packets, analyze_file
+from parse_pcap.utils import capture_packets, analyze_file
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)

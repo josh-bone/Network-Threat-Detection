@@ -1,5 +1,5 @@
 """
-Unit tests for the utility functions in the `pcap_ioc.utils` module.
+Unit tests for the utility functions in the `parse_pcap.utils` module.
 
 This test suite covers:
 - Extraction of IP addresses and domain names from packet-like objects.
@@ -27,7 +27,7 @@ Dependencies:
     - pytest
     - unittest.mock
     - json
-    - pcap_ioc.utils
+    - parse_pcap.utils
 """
 
 # Standard imports
@@ -39,7 +39,7 @@ import random
 import pytest
 
 # Local imports
-from pcap_ioc import utils
+from parse_pcap import utils
 
 
 class DummyPkt:
@@ -204,8 +204,8 @@ def test_load_pcap_no_file():
         utils.load_pcap("nonexistent.pcap")
 
 
-@mock.patch("pcap_ioc.utils.load_pcap")
-@mock.patch("pcap_ioc.utils.save_report")
+@mock.patch("parse_pcap.utils.load_pcap")
+@mock.patch("parse_pcap.utils.save_report")
 def test_analyze_file(mock_save_report, mock_load_pcap):
     """
     Test that the `analyze` function in the `utils` module correctly calls the `load_pcap` and `save_report` functions.
