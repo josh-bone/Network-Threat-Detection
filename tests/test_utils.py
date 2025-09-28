@@ -221,7 +221,7 @@ def test_analyze_file(mock_save_report, mock_load_pcap):
         )
     ]
     mock_load_pcap.return_value = fake_cap
-    utils.analyze_file("fakefile.pcap", "output.json")
+    utils.analyze(fake_cap, out_file="output.json")
     mock_load_pcap.assert_called_once_with("fakefile.pcap")
     mock_save_report.assert_called_once()
     args, kwargs = mock_save_report.call_args
