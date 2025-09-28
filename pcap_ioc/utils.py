@@ -163,13 +163,14 @@ def extract_domains(cap) -> set:
     return domains
 
 
-def assemble_report(ips, domains, ip_info=None, rule_file=None) -> dict:
+def assemble_report(ips, domains, ip_info=None, rules=None) -> dict:
     """
     Assembles a report containing unique IPs, domains, and optional IP information.
     Args:
         ips (Iterable): A collection of unique IP addresses.
         domains (Iterable): A collection of unique domain names.
         ip_info (Optional[Any]): Additional information about the IPs (default is None).
+        rules (Optional[dict]): IOC rules to apply for blacklisting (default is None).
     Returns:
         dict: A dictionary containing the report with the following keys:
             - "save_time": ISO formatted timestamp of report creation.
@@ -187,8 +188,7 @@ def assemble_report(ips, domains, ip_info=None, rule_file=None) -> dict:
     if ip_info is not None:
         report["ip_info"] = ip_info
 
-    if rule_file is not None:
-        rules = load_rules(rule_file)
+    if rules is not None:
         if "ip_blacklist" in rules:
             report["blacklisted_ips"] = [
                 ip for ip in ips if ip in rules["ip_blacklist"]
@@ -300,7 +300,7 @@ def analyze(cap, out_file: str = None, rule_file: str = None) -> dict:
 
     ip_info = [get_ip_info(ip_address=addr) for addr in ips]
 
-    report = assemble_report(ips, domains, ip_info=ip_info, rule_file=rule_file)
+    report = assemble_report(ips, domains, ip_info=ip_info, rules=load_rules(rule_file))
 
     if out_file is not None:
         save_report(report, out_file=out_file)
