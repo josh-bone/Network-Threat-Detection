@@ -206,7 +206,7 @@ def test_load_pcap_no_file():
 
 @mock.patch("parse_pcap.utils.load_pcap")
 @mock.patch("parse_pcap.utils.save_report")
-def test_analyze_file(mock_save_report, mock_load_pcap):
+def test_analyze_file(mock_load_pcap):
     """
     Test the analyze_file function to ensure it orchestrates the workflow correctly:
     - It should call load_pcap with the input file.
