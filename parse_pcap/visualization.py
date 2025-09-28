@@ -13,14 +13,33 @@ logger = logging.getLogger(__name__)
 
 
 def visualize_all(report):
+    """
+    Displays allpossible visualizations in the module.
+    Args:
+        report (dict): The report data containing information about violations to be visualized.
+    Returns:
+        None
+    """    
     show_violations(report)
 
 
 def show_violations(report):
+    """
+    Displays rule violations from a given report dictionary.
+    This function prints information about blacklisted cities, IPs, and domains found in the report.
+    For each blacklisted city, it counts and displays the number of IP addresses associated with that city.
+    It also logs findings using the logger.
+    Args:
+        report (dict): A dictionary containing analysis results, expected to have keys such as
+            'blacklisted_cities', 'blacklisted_ips', 'blacklisted_domains', and 'ip_info'.
+    Returns:
+        None
+    """
+    
     print("\n=== Rule Violations ===")
 
     if "blacklisted_cities" in report and len(report["blacklisted_cities"]) > 0:
-        print(f"IP addresses from blacklisted cities")
+        print("IP addresses from blacklisted cities")
         logger.info("Blacklisted cities found")
         for city in report["blacklisted_cities"]:
             # There's probably a more efficient way...
@@ -35,12 +54,12 @@ def show_violations(report):
 
     if "blacklisted_ips" in report and len(report["blacklisted_ips"]) > 0:
         logger.info("Blacklisted IPs found")
-        print(f"\nBlacklisted IPs found:")
+        print("\nBlacklisted IPs found:")
         for ip in report["blacklisted_ips"]:
             print(f"  {ip}")
 
     if "blacklisted_domains" in report and len(report["blacklisted_domains"]) > 0:
         logger.info("Blacklisted Domains found")
-        print(f"\nBlacklisted Domains found:")
+        print("\nBlacklisted Domains found:")
         for domain in report["blacklisted_domains"]:
             print(f"  {domain}")

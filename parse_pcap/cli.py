@@ -142,8 +142,5 @@ def main():
         except FileNotFoundError as e:
             logger.error("Report file not found: %s:\n%s", args.report_file, e)
             return
-        except Exception as e:
-            logger.error("An error occurred while loading the report: %s", e)
-            return
-
+        
         visualize_all(report)
