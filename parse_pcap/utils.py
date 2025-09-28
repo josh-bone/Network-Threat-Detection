@@ -188,6 +188,7 @@ def assemble_report(ips, domains, ip_info=None, rules=None) -> dict:
     if ip_info is not None:
         report["ip_info"] = ip_info
 
+    # TODO: Allow more flexible labels - e.g. wildcard matching on domains (*.example.com), CIDR for IPs (255.*.*.*), etc.
     if rules is not None:
         if "ip_blacklist" in rules:
             report["blacklisted_ips"] = [

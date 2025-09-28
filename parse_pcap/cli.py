@@ -91,3 +91,7 @@ def main():
         ), f"PCAP file {pcap_file} does not exist"  # At this point the file must exist
         logger.info("Analyzing %s with rules in %s", pcap_file, args.rules)
         analyze_file(pcap_file, out_file=args.out_file, rule_file=args.rules)
+
+    elif args.command == "visualize":
+        # TODO: Implement visualization functionality using something like rich or textual
+        raise NotImplementedError("Visualize command not yet implemented")
