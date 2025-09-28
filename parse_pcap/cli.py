@@ -36,7 +36,6 @@ def main():
         - Prints status messages and logs events.
     """
 
-    print("PCAP IOC Analyzer v0.1")  # Mostly for debugging :)
     parser = argparse.ArgumentParser(description="Analyze PCAPs for IOCs")
     parser.add_argument(
         "command",

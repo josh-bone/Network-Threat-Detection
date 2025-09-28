@@ -8,6 +8,8 @@ Functions:
     show_violations(packets, rules):
         Prints packets that violate specified rules, such as blacklisted IPs or cities.
 """
+import logging
+logger = logging.getLogger(__name__)
 
 
 def visualize_all(report):
@@ -19,6 +21,7 @@ def show_violations(report):
 
     if "blacklisted_cities" in report and len(report["blacklisted_cities"]) > 0:
         print(f"IP addresses from blacklisted cities")
+        logger.info("Blacklisted cities found")
         for city in report["blacklisted_cities"]:
             # There's probably a more efficient way...
             count = len(
@@ -31,11 +34,13 @@ def show_violations(report):
             print(f"  {city}\t{count}")
 
     if "blacklisted_ips" in report and len(report["blacklisted_ips"]) > 0:
+        logger.info("Blacklisted IPs found")
         print(f"\nBlacklisted IPs found:")
         for ip in report["blacklisted_ips"]:
             print(f"  {ip}")
 
     if "blacklisted_domains" in report and len(report["blacklisted_domains"]) > 0:
+        logger.info("Blacklisted Domains found")
         print(f"\nBlacklisted Domains found:")
         for domain in report["blacklisted_domains"]:
             print(f"  {domain}")
