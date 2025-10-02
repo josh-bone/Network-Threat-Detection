@@ -77,6 +77,13 @@ def main():
         help="Duration of capture in seconds (default: 10)",
     )
     parser.add_argument(
+        "-f",
+        "--capture_filter",
+        required=False,
+        default=None,
+        help="Filter to apply to Wireshark capture (e.g. 'udp port 555')"
+    )
+    parser.add_argument(
         "-v", "--visualize", action="store_true", help="Visualize results in terminal"
     )
     parser.add_argument(
@@ -108,6 +115,7 @@ def main():
     ):
         _ = capture_packets(
             output_filename=args.pcap_file,
+            capture_packets=args.filter,
             interface=args.capture_interface,
             duration=args.capture_duration,
         )
