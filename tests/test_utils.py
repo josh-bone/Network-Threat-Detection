@@ -174,3 +174,8 @@ def test_load_pcap_no_file():
 
     with pytest.raises(FileNotFoundError):
         utils.load_pcap("nonexistent.pcap")
+
+
+def test_extract_all_no_input():
+    with pytest.raises(TypeError):
+        utils.extract_all()

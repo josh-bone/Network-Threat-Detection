@@ -81,7 +81,7 @@ def main():
         "--capture_filter",
         required=False,
         default=None,
-        help="Filter to apply to Wireshark capture (e.g. 'udp port 555')"
+        help="Filter to apply to Wireshark capture (e.g. 'udp port 555')",
     )
     parser.add_argument(
         "-v", "--visualize", action="store_true", help="Visualize results in terminal"

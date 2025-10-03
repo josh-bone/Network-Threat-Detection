@@ -111,7 +111,7 @@ def load_pcap(file_path) -> pyshark.capture.file_capture.FileCapture:
     return cap
 
 
-def extract_ips(cap) -> set:
+def extract_ips(cap: pyshark.capture.file_capture.FileCapture) -> set:
     """
     Extracts unique source and destination IP addresses from a packet capture.
     Iterates over all packets in the provided capture object, attempting to extract
@@ -146,7 +146,30 @@ def extract_ips(cap) -> set:
     return ip_counts
 
 
-def extract_domains(cap) -> set:
+def extract_all(cap: pyshark.capture.file_capture.FileCapture) -> set[dict]:
+    """Extracts as much info as possible about each packet, and stores these as a set of dictionaries."""
+
+    if type(cap) is not pyshark.capture.file_capture.FileCapture:
+        raise TypeError("extract_all expected a capture object")
+
+    result = {}
+    for i, pkt in enumerate(cap):
+        cur_packet = {}
+        logger.info("Extracting info from packet %d/%d", i, len(list(cap)))
+
+        cur_packet["src"] = pkt.ip.src
+        cur_packet["dst"] = pkt.ip.dst
+        cur_packet["time"] = pkt.sniff_time  # type == datetime.datetime
+        if "DNS" in pkt:
+            try:
+                cur_packet["domain"] = pkt.dns.qry_name
+            except AttributeError:
+                logger.info("Didn't find dns.qry_name in packet %d", i)
+                continue
+    return result
+
+
+def extract_domains(cap: pyshark.capture.file_capture.FileCapture) -> set:
     """
     Extracts unique domain names from DNS packets in a given packet capture.
     Iterates over the provided packet capture object, inspects each packet for DNS queries,
@@ -186,7 +209,7 @@ def assemble_report(ips, domains, ip_info=None, rules=None) -> dict:
             - "unique_domains": List of unique domain names.
             - "ip_info": (Optional) Additional IP information if provided.
     """
-    # TODO: include protocol of packets in the report somehow
+    # TODO: include protocol of packets in the report (collect elsewhere first)
     if rules == {}:
         rules = None
 
