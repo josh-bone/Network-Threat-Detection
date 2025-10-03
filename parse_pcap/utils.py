@@ -16,6 +16,7 @@ import json
 import os
 import sys
 import logging
+import fnmatch
 
 # Third-party imports
 import pyshark
@@ -236,17 +237,16 @@ def assemble_report(info: list[dict], rules: dict = None) -> dict:
         "unique_domains": list(domains),
     }
 
-    # TODO: Allow more flexible labels - e.g. wildcard matching on domains (*.example.com), CIDR for IPs (255.*.*.*), etc.
     if rules is not None:
         if "ip_blacklist" in rules:
             report["blacklisted_ips"] = [
-                ip for ip in all_ips if ip in rules["ip_blacklist"]
+                ip for ip in all_ips if any(fnmatch.fnmatch(ip, pattern) for pattern in rules["ip_blacklist"])
             ]
         if "domain_blacklist" in rules:
             report["blacklisted_domains"] = [
                 domain
                 for domain in set(domains.keys())
-                if domain in rules["domain_blacklist"]
+                if any(fnmatch.fnmatch(domain, pattern) for pattern in rules["domain_blacklist"])
             ]
 
     return report
