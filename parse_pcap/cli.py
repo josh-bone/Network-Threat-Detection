@@ -115,7 +115,7 @@ def main():
     ):
         _ = capture_packets(
             output_filename=args.pcap_file,
-            bpl_filter=args.filter,
+            bpf_filter=args.filter,
             interface=args.capture_interface,
             duration=args.capture_duration,
         )
