@@ -149,7 +149,9 @@ def extract_ips(cap: pyshark.capture.file_capture.FileCapture) -> set:
 def extract_all(cap: pyshark.capture.file_capture.FileCapture) -> set[dict]:
     """Extracts as much info as possible about each packet, and stores these as a set of dictionaries."""
 
-    if type(cap) is not pyshark.capture.file_capture.FileCapture:
+    # TODO: Make use of get_ip_info (optionally)
+
+    if not isinstance(cap, pyshark.capture.file_capture.FileCapture):
         raise TypeError("extract_all expected a capture object")
 
     cap_length = len(list(cap))
@@ -205,15 +207,12 @@ def extract_domains(cap: pyshark.capture.file_capture.FileCapture) -> set:
     return domains
 
 
-def assemble_report(ips, domains, ip_info=None, rules=None) -> dict:
+def assemble_report(info: list[dict], rules: dict = None) -> dict:
     """
-    DEPRECATED
     Assembles a report containing unique IPs, domains, and optional IP information.
     Args:
-        ips (Iterable): A collection of unique IP addresses.
-        domains (Iterable): A collection of unique domain names.
-        ip_info (Optional[Any]): Additional information about the IPs (default is None).
-        rules (Optional[dict]): IOC rules to apply for blacklisting (default is None).
+        info: list of dictionaries. Each dictionary corresponds to one packet.
+        rules
     Returns:
         dict: A dictionary containing the report with the following keys:
             - "save_time": ISO formatted timestamp of report creation.
@@ -222,23 +221,26 @@ def assemble_report(ips, domains, ip_info=None, rules=None) -> dict:
             - "ip_info": (Optional) Additional IP information if provided.
     """
     # TODO: include protocol of packets in the report (collect elsewhere first)
-    if rules == {}:
+    if not rules:
         rules = None
+    elif not isinstance(rules, dict):
+        raise TypeError("Expected rules to be dictionary, instead got: %s", type(rules))
 
+    source_ips = set(pkt["ip_src"] for pkt in info)
+    dest_ips = set(pkt["ip_dest"] for pkt in info)
+    all_ips = source_ips.union(dest_ips)
+    domains = set(pkt["domain"] for pkt in info)
     report = {
         "save_time": datetime.now().isoformat(),
-        "unique_ips": list(set(ips.keys())),
-        "unique_domains": list(set(domains.keys())),
+        "unique_ips": list(all_ips),
+        "unique_domains": list(domains),
     }
 
-    if ip_info is not None:
-        report["ip_info"] = ip_info
-
     # TODO: Allow more flexible labels - e.g. wildcard matching on domains (*.example.com), CIDR for IPs (255.*.*.*), etc.
-    if rules is not None and isinstance(rules, dict):
+    if rules is not None:
         if "ip_blacklist" in rules:
             report["blacklisted_ips"] = [
-                ip for ip in set(ips.keys()) if ip in rules["ip_blacklist"]
+                ip for ip in all_ips if ip in rules["ip_blacklist"]
             ]
         if "domain_blacklist" in rules:
             report["blacklisted_domains"] = [
@@ -246,12 +248,6 @@ def assemble_report(ips, domains, ip_info=None, rules=None) -> dict:
                 for domain in set(domains.keys())
                 if domain in rules["domain_blacklist"]
             ]
-        if "city_blacklist" in rules:
-            report["blacklisted_cities"] = []
-            if ip_info is not None:
-                for info in ip_info:
-                    if "city" in info and info["city"] in rules["city_blacklist"]:
-                        report["blacklisted_cities"].append(info)
 
     return report
 
@@ -349,7 +345,9 @@ def analyze(
 
     # TODO: Use rule_file
 
-    report = extract_all(cap)
+    all_info = extract_all(cap)
+
+    report = assemble_report(all_info)
 
     if out_file is not None:
         save_report(report, out_file=out_file)
