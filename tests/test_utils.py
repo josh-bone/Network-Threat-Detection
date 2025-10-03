@@ -153,7 +153,7 @@ def test_extract_domains_handles_attribute_error():
     del pkt.dns.qry_name  # Remove attribute to trigger AttributeError
     pkts = [pkt]
     result = utils.extract_domains(pkts)
-    assert result == {}
+    assert not result
 
 
 def test_capture_packets():
