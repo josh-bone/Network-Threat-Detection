@@ -221,7 +221,6 @@ def assemble_report(info: list[dict], rules: dict = None) -> dict:
             - "unique_domains": List of unique domain names.
             - "ip_info": (Optional) Additional IP information if provided.
     """
-    # TODO: include protocol of packets in the report (collect elsewhere first)
     if not rules:
         rules = None
     elif not isinstance(rules, dict):
@@ -240,13 +239,20 @@ def assemble_report(info: list[dict], rules: dict = None) -> dict:
     if rules is not None:
         if "ip_blacklist" in rules:
             report["blacklisted_ips"] = [
-                ip for ip in all_ips if any(fnmatch.fnmatch(ip, pattern) for pattern in rules["ip_blacklist"])
+                ip
+                for ip in all_ips
+                if any(
+                    fnmatch.fnmatch(ip, pattern) for pattern in rules["ip_blacklist"]
+                )
             ]
         if "domain_blacklist" in rules:
             report["blacklisted_domains"] = [
                 domain
                 for domain in set(domains.keys())
-                if any(fnmatch.fnmatch(domain, pattern) for pattern in rules["domain_blacklist"])
+                if any(
+                    fnmatch.fnmatch(domain, pattern)
+                    for pattern in rules["domain_blacklist"]
+                )
             ]
 
     return report
