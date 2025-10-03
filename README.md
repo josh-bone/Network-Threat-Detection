@@ -26,7 +26,7 @@ pip install parse-pcap
 **Analyze an existing pcap file:**
 
 ```bash
-parse_pcap analyze -p /path/to/packet_capture.pcap -r /path/to/results.json
+parse_pcap analyze -p /path/to/packet_capture.pcap --report_file /path/to/results.json
 ```
 
 **Capture live network traffic:**

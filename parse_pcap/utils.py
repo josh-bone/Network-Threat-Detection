@@ -152,20 +152,31 @@ def extract_all(cap: pyshark.capture.file_capture.FileCapture) -> set[dict]:
     if type(cap) is not pyshark.capture.file_capture.FileCapture:
         raise TypeError("extract_all expected a capture object")
 
-    result = {}
+    cap_length = len(list(cap))
+
+    result = []
     for i, pkt in enumerate(cap):
         cur_packet = {}
-        logger.info("Extracting info from packet %d/%d", i, len(list(cap)))
+        logger.info("Extracting info from packet %d/%d", i, cap_length)
 
-        cur_packet["src"] = pkt.ip.src
-        cur_packet["dst"] = pkt.ip.dst
-        cur_packet["time"] = pkt.sniff_time  # type == datetime.datetime
+        try:
+            cur_packet["ip_src"] = pkt.ip.src
+            cur_packet["ip_dst"] = pkt.ip.dst
+        except AttributeError:
+            logger.info("Packet %d has no IP layer, skipping", i)
+        cur_packet["time"] = str(
+            pkt.sniff_time
+        )  # type(pkt.sniff_time) == datetime.datetime
+        cur_packet["layers"] = [layer.layer_name for layer in pkt.layers]
         if "DNS" in pkt:
             try:
                 cur_packet["domain"] = pkt.dns.qry_name
             except AttributeError:
                 logger.info("Didn't find dns.qry_name in packet %d", i)
                 continue
+
+        result.append(cur_packet)
+
     return result
 
 
@@ -196,6 +207,7 @@ def extract_domains(cap: pyshark.capture.file_capture.FileCapture) -> set:
 
 def assemble_report(ips, domains, ip_info=None, rules=None) -> dict:
     """
+    DEPRECATED
     Assembles a report containing unique IPs, domains, and optional IP information.
     Args:
         ips (Iterable): A collection of unique IP addresses.
@@ -278,7 +290,7 @@ def load_rules(rule_file: str) -> dict:
     return rules
 
 
-def save_report(report: dict, out_file: str | os.PathLike) -> None:
+def save_report(report: set[dict], out_file: str | os.PathLike) -> None:
     """
     Saves the given report as a JSON file.
     Args:
@@ -320,7 +332,11 @@ def analyze_file(in_file: str, out_file: str = None, rule_file: str = None) -> d
     return analyze(cap, out_file=out_file, rule_file=rule_file)
 
 
-def analyze(cap, out_file: str = None, rule_file: str = None) -> dict:
+def analyze(
+    cap: pyshark.capture.file_capture.FileCapture,
+    out_file: str = None,
+    rule_file: str = None,
+) -> dict:
     """
     Analyzes a pcap capture object to extract unique IP addresses and domains, gathers information about each IP,
     and generates a report. Optionally saves the report to a specified output file.
@@ -331,19 +347,9 @@ def analyze(cap, out_file: str = None, rule_file: str = None) -> dict:
         dict: The assembled report containing extracted IPs, domains, and IP information.
     """
 
-    logger.info("Extracting IPs and domains")  # debugging
-    ip_counts = extract_ips(cap)
-    logger.info("Extracted %d unique IPs", len(set(ip_counts)))  # debugging
+    # TODO: Use rule_file
 
-    logger.info("Extracting Domains")  # debugging
-    domain_counts = extract_domains(cap)
-    logger.info("Extracted %d unique domains", len(set(domain_counts)))  # debugging
-
-    ip_info = [get_ip_info(ip_address=addr) for addr in set(ip_counts)]
-
-    report = assemble_report(
-        ip_counts, domain_counts, ip_info=ip_info, rules=load_rules(rule_file)
-    )
+    report = extract_all(cap)
 
     if out_file is not None:
         save_report(report, out_file=out_file)

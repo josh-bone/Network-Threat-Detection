@@ -96,15 +96,15 @@ def main():
     )
     args = parser.parse_args()
 
-    if args.log_level == "DEBUG":
+    if args.log_level.upper() == "DEBUG":
         logging.basicConfig(level=logging.DEBUG)
-    elif args.log_level == "INFO":
+    elif args.log_level.upper() == "INFO":
         logging.basicConfig(level=logging.INFO)
-    elif args.log_level == "WARNING":
+    elif args.log_level.upper() == "WARNING":
         logging.basicConfig(level=logging.WARNING)
-    elif args.log_level == "ERROR":
+    elif args.log_level.upper() == "ERROR":
         logging.basicConfig(level=logging.ERROR)
-    elif args.log_level == "CRITICAL":
+    elif args.log_level.upper() == "CRITICAL":
         logging.basicConfig(level=logging.CRITICAL)
 
     logger.info("args.report_file: %s", args.report_file)  # debugging
