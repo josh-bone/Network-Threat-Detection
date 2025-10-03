@@ -226,10 +226,10 @@ def assemble_report(info: list[dict], rules: dict = None) -> dict:
     elif not isinstance(rules, dict):
         raise TypeError("Expected rules to be dictionary, instead got: %s", type(rules))
 
-    source_ips = set(pkt["ip_src"] for pkt in info)
-    dest_ips = set(pkt["ip_dest"] for pkt in info)
+    source_ips = set(pkt["ip_src"] for pkt in info if "ip_src" in pkt)
+    dest_ips = set(pkt["ip_dest"] for pkt in info if "ip_dest" in pkt)
     all_ips = source_ips.union(dest_ips)
-    domains = set(pkt["domain"] for pkt in info)
+    domains = set(pkt["domain"] for pkt in info if "domain" in pkt)
     report = {
         "save_time": datetime.now().isoformat(),
         "unique_ips": list(all_ips),
